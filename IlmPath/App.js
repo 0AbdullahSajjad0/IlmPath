@@ -5,6 +5,8 @@ export default function App() {
   return (
     <View style={styles.container}>
       <Text>Welcome to IlmPath-Abdullah Sajjad</Text>
+      <Text>Welcome to IlmPath-Shuja Abbas</Text>
+      <Text>Welcome to IlmPath-Qahafa Ahmed</Text>
       <StatusBar style="auto" />
     </View>
   );
