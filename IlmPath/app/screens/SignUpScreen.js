@@ -1,14 +1,16 @@
 import React, { useState} from 'react';
 import { View, Text, Image, TouchableOpacity, TextInput, ScrollView, StyleSheet  } from 'react-native';
-import { globalStyles, responsiveIconSize, responsiveFontSize, responsiveNegativeMargin } from '../styles/globalStyles';
+import { globalStyles, responsiveIconSize, responsiveFontSize, responsiveNegativeMargin, responsiveMargin } from '../styles/globalStyles';
 import RNPickerSelect from 'react-native-picker-select';
 import DropDownPicker from 'react-native-dropdown-picker';
 import { TouchableWithoutFeedback, Keyboard } from 'react-native';
 
 function SignUpScreen({ navigation }) {
-        const handleGuestPress = () => {
+        const handleSignUpPress = () => {
         // Handle button press action
-        console.log('Guest Button Pressed');
+        console.log('Sign Up Button Pressed');
+        navigation.navigate('StudentSignUp');
+        console.log('Navigated to StudentSignUp');
         };
     
         const handleGooglePress = () => {
@@ -18,9 +20,9 @@ function SignUpScreen({ navigation }) {
     
         const handleSignInPress = () => {
         // Handle button press action
-        console.log('Sign Up Button Pressed');
+        console.log('Sign In Button Pressed');
         navigation.navigate('SignIn');
-        console.log('Navigated to EmailSignUp');
+        console.log('Navigated to EmailSignIn');
         };
     
         const [toggleCheckBox, setToggleCheckBox] = useState(false);
@@ -145,6 +147,7 @@ function SignUpScreen({ navigation }) {
                             elevation: 3, // Shadow for dropdown
                             marginTop: responsiveNegativeMargin(-5), // Adjust margin
                         }}
+                        listMode="SCROLLVIEW"
                         arrowIconStyle={{
                             marginRight: responsiveNegativeMargin(-8), // Move the arrow icon slightly to the right
                         }}
@@ -183,8 +186,8 @@ function SignUpScreen({ navigation }) {
 
 
     
-                // Sign In Button
-                <TouchableOpacity style={globalStyles.button} onPress={handleGuestPress}>
+                // Sign Up Button
+                <TouchableOpacity style={globalStyles.button} onPress={handleSignUpPress}>
                     <Text style={globalStyles.buttonText}>Sign Up</Text>
                     <View style={globalStyles.buttonIconContainer}>
                         <Image

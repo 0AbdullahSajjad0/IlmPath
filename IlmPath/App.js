@@ -8,6 +8,7 @@ import { useFonts } from 'expo-font';
 import LoginOptionsScreen from './app/screens/LoginOptionsScreen';
 import EmailSignIn from './app/screens/EmailSignIn';
 import SignUpScreen from './app/screens/SignUpScreen';
+import StudentSignUp from './app/screens/StudentSignUp';
 
 // Prevent splash from auto-hiding
 SplashScreen.preventAutoHideAsync();
@@ -53,6 +54,7 @@ export default function App() {
         <Stack.Screen name="Options" component={LoginOptionsScreen} />
         <Stack.Screen name="EmailSignIn" component={EmailSignIn} />
         <Stack.Screen name="SignUp" component={SignUpScreen} />
+        <Stack.Screen name="StudentSignUp" component={StudentSignUp} />
         <Stack.Screen name="SignIn" component={EmailSignIn} />
       </Stack.Navigator>
     </NavigationContainer>
