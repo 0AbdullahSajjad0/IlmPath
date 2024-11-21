@@ -10,8 +10,9 @@ const verticalScale = height / 812;
 const responsiveFontSize = (fontSize) => fontSize * scale;
 const responsiveIconSize = (size) => size * scale;
 const responsiveNegativeMargin = (value) => value * scale;
+const responsiveMargin = (value) => value * scale; 
 
-export {width, height, responsiveFontSize, responsiveIconSize, responsiveNegativeMargin};
+export {width, height, responsiveFontSize, responsiveIconSize, responsiveNegativeMargin, responsiveMargin};
 export const globalStyles  = StyleSheet.create({
     container: {
         flex: 1,
@@ -178,5 +179,28 @@ export const globalStyles  = StyleSheet.create({
     signUpText: {
         textDecorationLine: 'underline',
         color: '#BC6C25',
+    },
+    headerContainer: {
+        width: '100%', // Ensures the container spans the width of the screen
+        paddingHorizontal: responsiveIconSize(20), // Adds horizontal padding
+        paddingVertical: responsiveIconSize(15), // Adds vertical padding
+        marginTop: responsiveMargin(50), // Adds margin
+        alignItems: 'flex-start', // Aligns content to the left
+        justifyContent: 'flex-start', // Aligns content at the top
+    
+    },
+    backButtonContainer: {
+        flexDirection: 'row', // Places icon and text side by side
+        alignItems: 'center', // Aligns icon and text vertically
+    },
+    backIcon: {
+        marginRight: responsiveMargin(15), // Adds space between the icon and text
+        width: responsiveIconSize(24), // Adjust icon size
+        height: responsiveIconSize(24),
+    },
+    backText: {
+        fontSize: responsiveFontSize(20), // Adjust font size
+        color: '#545454', // Text color
+        fontFamily: 'Jost-SemiBold', // Ensure font consistency
     },
 });

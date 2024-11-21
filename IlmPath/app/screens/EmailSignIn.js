@@ -26,7 +26,7 @@ function EmailSignIn({ navigation }) {
     return (
         <View style={globalStyles.container}>
 
-            // Logo and Text
+            {/* Logo and Text */}
             <View style={globalStyles.logoContainer}>
                 <Image
                     source={require('../assets/QuranLogo.png')} 
@@ -38,13 +38,13 @@ function EmailSignIn({ navigation }) {
                 </View>
             </View>
 
-            // Login Text
+            {/* Login Text */}
             <View style={globalStyles.loginTextContainer}>
                 <Text style={globalStyles.text}>Let's Sign In.!</Text>
                 <Text style={{fontSize: 12}}>Login to Your Account to Continue Learning</Text>
             </View>
 
-            // Email and Password Input
+            {/* Email and Password Input */}
             <View style={globalStyles.inputWrapper}>
                 <View style={globalStyles.leftIconWrapper}>
                     <View style={globalStyles.iconContainer}>
@@ -90,7 +90,7 @@ function EmailSignIn({ navigation }) {
                 </View>
             </View>
 
-            // Remember Me and Forgot Password
+            {/* Remember Me and Forgot Password */}
             <View style={styles.checkboxRow}>
                 <View style={globalStyles.checkboxLabelContainer}>
                     <TouchableOpacity
@@ -112,7 +112,7 @@ function EmailSignIn({ navigation }) {
                 </TouchableOpacity>
             </View>
 
-            // Sign In Button
+            {/* Sign In Button */}
             <TouchableOpacity style={globalStyles.button} onPress={handleGuestPress}>
                 <Text style={globalStyles.buttonText}>Sign In</Text>
                 <View style={globalStyles.buttonIconContainer}>
@@ -123,7 +123,7 @@ function EmailSignIn({ navigation }) {
                 </View> 
             </TouchableOpacity> 
 
-            // Continue with Google
+            {/* Continue with Email */}
             <Text style={{marginVertical: 25}}>Or Continue with</Text>
             <View>
                 <View style={globalStyles.googleIconContainer}>
@@ -134,7 +134,7 @@ function EmailSignIn({ navigation }) {
                 </View>
             </View>
 
-            // Sign Up Text
+            {/* Sign Up Text */}
             <View style={styles.signUp}>
             <Text style={{color: '#545454'}}>Don't have an Account? </Text>
                 <TouchableOpacity onPress={handleSignUpPress}><Text style={styles.signUpText}>SIGN UP</Text></TouchableOpacity>
