@@ -1,11 +1,9 @@
 import React, { useState} from 'react';
 import { View, Text, Image, TouchableOpacity, TextInput, ScrollView, StyleSheet, Platform  } from 'react-native';
 import { globalStyles, responsiveIconSize, responsiveFontSize, responsiveNegativeMargin, responsiveMargin } from '../styles/globalStyles';
-import RNPickerSelect from 'react-native-picker-select';
 import DateTimePicker from '@react-native-community/datetimepicker'; // Import DateTimePicker
 import DropDownPicker from 'react-native-dropdown-picker';
-import CountryPicker from 'react-native-country-picker-modal';
-import { TouchableWithoutFeedback, Keyboard } from 'react-native';
+import IntlPhoneInput from 'react-native-international-phone-number';
 
 function StudentSignUp({ navigation }) {
     const handleSignUpPress = () => {
@@ -26,6 +24,17 @@ function StudentSignUp({ navigation }) {
     navigation.navigate('SignIn');
     console.log('Navigated to EmailSignIn');
     };
+
+    const [selectedCountry, setSelectedCountry] = useState(null);
+    const [inputValue, setInputValue] = useState('');
+
+    function handleInputValue(phoneNumber) {
+        setInputValue(phoneNumber);
+      }
+    
+      function handleSelectedCountry(country) {
+        setSelectedCountry(country);
+      }
 
     const [dob, setDob] = useState(''); // State to store selected date
     const [showDatePicker, setShowDatePicker] = useState(false); // State to control the date picker visibility
@@ -54,15 +63,7 @@ function StudentSignUp({ navigation }) {
         setShowDatePicker(false);
     };
 
-    const [countryCode, setCountryCode] = useState('US'); // Default country code
-    const [callingCode, setCallingCode] = useState('1'); // Default calling code
-    const [phoneNumber, setPhoneNumber] = useState(''); // State to store the phone number
-
-    const handleSelectCountry = (country) => {
-        setCountryCode(country.cca2); // Update country code (e.g., US)
-        setCallingCode(country.callingCode[0]); // Update calling code (e.g., 1)
-    };
-
+   
         // State for DropDownPicker
     const [open, setOpen] = useState(false); // Controls dropdown visibility
     const [value, setValue] = useState(null); // Holds the selected value
@@ -75,7 +76,7 @@ function StudentSignUp({ navigation }) {
     return (
         <View style={globalStyles.container}>
                 
-                // Back Button
+                {/* Back Button */}
                 <View style={globalStyles.headerContainer}>
                     <View style={globalStyles.backButtonContainer}>
                         <Image
@@ -111,7 +112,7 @@ function StudentSignUp({ navigation }) {
                 </View>
 
 
-                // Email and Password Input
+                {/* Email and Password Input */}
                 <View style={[globalStyles.inputWrapper, {padding:20}]}>
                     
                     <TextInput
@@ -176,29 +177,54 @@ function StudentSignUp({ navigation }) {
                 </View>
 
                 {/* Phone Number Input */}
-                <View style={[globalStyles.inputWrapper, styles.phoneNumberWrapper]}>
-                    {/* Country Picker */}
-                    <CountryPicker
-                        countryCode={countryCode} // Selected country
-                        withFlag // Display flag
-                        withCallingCode // Display calling code
-                        withCallingCodeButton // Show calling code as a button
-                        withFilter // Enable search filter
-                        onSelect={handleSelectCountry} // Handle country selection
-                        containerButtonStyle={styles.flagButton}
-                    />
-                    {/* Phone Number Input */}
-                    <TextInput
-                        style={styles.phoneInput}
-                        placeholder="Phone Number"
-                        placeholderTextColor="#A9A9A9"
-                        keyboardType="phone-pad"
-                        value={phoneNumber}
-                        onChangeText={setPhoneNumber} // Update phone number
+                <View style={styles.phoneInputContainer}>
+                    <IntlPhoneInput
+                        value={inputValue}
+                        onChangePhoneNumber={handleInputValue}
+                        selectedCountry={selectedCountry}
+                        onChangeSelectedCountry={handleSelectedCountry}
+                        defaultCountry="US" // Set default country
+                        defaultValue="+12505550199"
+                        phoneInputStyles={{
+                            container: {
+                              flex: 1,
+                              backgroundColor: 'white',
+                              borderWidth: 1,
+                              borderStyle: 'solid',
+                              height: responsiveIconSize(55),
+                              borderRadius: 12,
+                              borderColor: 'white',
+                              alignItems:'center',
+                              
+                            },
+                            flagContainer: {
+                              backgroundColor: 'white',
+                              justifyContent: 'center',
+                              
+                            },
+                            flag: {},
+                            caret: {
+                              color: 'black',
+                              fontSize: 16,
+                            },
+                            divider: {
+                              backgroundColor: 'white',
+                            },
+                            callingCode: {
+                              fontSize: responsiveFontSize(15),
+                              color: 'black',
+                              marginLeft: responsiveNegativeMargin(-15),
+                            },
+                            input: {
+                              flex: 1,
+                              color: 'black',
+                              textAlign: 'left',
+                            },
+                          }}
                     />
                 </View>
 
-                // Gender DropDown
+                {/* Gender DropDown */}
                 <View style={[globalStyles.inputWrapper, {padding:14}]}>
                     
 
@@ -243,7 +269,7 @@ function StudentSignUp({ navigation }) {
                 </View>
 
     
-                // Sign Up Button
+                {/* Sign Up Button */}
                 <TouchableOpacity style={[globalStyles.button, {marginTop:50, marginBottom:50}]} onPress={handleSignUpPress}>
                     <Text style={globalStyles.buttonText}>Sign Up</Text>
                     <View style={globalStyles.buttonIconContainer}>
@@ -335,20 +361,25 @@ const styles = StyleSheet.create({
         resizeMode: 'contain', // Ensures the icon fits well
     },
     phoneNumberWrapper: {
+        flex: 1,
         flexDirection: 'row',
         alignItems: 'center',
-        borderRadius: 5,
-        paddingHorizontal: responsiveMargin(10),
+        justifyContent: 'center',
         marginVertical: responsiveMargin(10),
+        paddingHorizontal: responsiveMargin(18),
+        borderRadius: 10,
+        borderColor: 'white', // Light gray border
     },
-    flagButton: {
-        marginRight: responsiveMargin(10),
-    },
-    phoneInput: {
+    phoneInputContainer: {
         flex: 1,
+        borderRadius: 8,
+        margin: responsiveMargin(20),
+        marginTop: 0,
+    },
+    intlPhoneInput: {
         fontSize: responsiveFontSize(14),
         color: '#000',
-    },
+    }
 });
 
 export default StudentSignUp;

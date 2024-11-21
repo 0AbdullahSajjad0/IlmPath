@@ -44,7 +44,7 @@ function SignUpScreen({ navigation }) {
                         contentContainerStyle={globalStyles.formContainer}
                         showsVerticalScrollIndicator={false}
                     >
-                // Logo and Text
+                {/* Logo and Text */}
                 <View style={[globalStyles.logoContainer, styles.logoContainer]}>
                     <Image
                         source={require('../assets/QuranLogo.png')} 
@@ -56,13 +56,13 @@ function SignUpScreen({ navigation }) {
                     </View>
                 </View>
     
-                // Login Text
+                {/* Login Text */}
                 <View style={[globalStyles.loginTextContainer, styles.loginTextContainer]}>
                     <Text style={globalStyles.text}>Getting Started.!</Text>
                     <Text style={{fontSize: 12}}>Create an Account to Unlock More Features</Text>
                 </View>
     
-                // Email and Password Input
+                {/* Email and Password Input */}
                 <View style={globalStyles.inputWrapper}>
                     <View style={globalStyles.leftIconWrapper}>
                         <View style={globalStyles.iconContainer}>
@@ -108,7 +108,7 @@ function SignUpScreen({ navigation }) {
                     </View>
                 </View>
 
-                // Role
+                {/* Role */}
                 <View style={globalStyles.inputWrapper}>
                     {/* Left Icon */}
                     <View style={globalStyles.leftIconWrapper}>
@@ -160,7 +160,7 @@ function SignUpScreen({ navigation }) {
 
 
     
-                // Agree to terms
+                {/* Agree to terms */}
                 <View style={styles.checkboxRow}>
                     <View style={globalStyles.checkboxLabelContainer}>
                         <TouchableOpacity
@@ -186,7 +186,7 @@ function SignUpScreen({ navigation }) {
 
 
     
-                // Sign Up Button
+                {/* Sign Up Button */}
                 <TouchableOpacity style={globalStyles.button} onPress={handleSignUpPress}>
                     <Text style={globalStyles.buttonText}>Sign Up</Text>
                     <View style={globalStyles.buttonIconContainer}>
@@ -197,7 +197,7 @@ function SignUpScreen({ navigation }) {
                     </View> 
                 </TouchableOpacity> 
     
-                // Continue with Google
+                {/* Continue with Google */}
                 <Text style={{marginVertical: 25}}>Or Continue with</Text>
                 <View>
                     <View style={globalStyles.googleIconContainer}>
@@ -208,7 +208,7 @@ function SignUpScreen({ navigation }) {
                     </View>
                 </View>
     
-                // Sign Up Text
+                {/* Sign Up Text */}
                 <View style={[globalStyles.signUp, styles.signUp]}>
                 <Text style={{color: '#545454'}}>Already have an Account? </Text>
                     <TouchableOpacity onPress={handleSignInPress}><Text style={globalStyles.signUpText}>SIGN IN</Text></TouchableOpacity>
