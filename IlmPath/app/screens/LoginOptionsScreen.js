@@ -4,8 +4,9 @@ import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
 function LoginOptionsScreen({ navigation }) {
 
   const handleGuestPress = () => {
-    // Handle button press action
-    console.log('Guest Button Pressed');
+    console.log('HomeTabs Button Pressed');
+    navigation.replace('HomeTabs');
+    console.log('Navigated to HomeTabs');
     };
 
   const handleGooglePress = () => {
@@ -37,7 +38,7 @@ function LoginOptionsScreen({ navigation }) {
             <TouchableOpacity style={styles.optionContainer} onPress={handleGooglePress}>
                 <View style={styles.iconContainer}>
                     <Image
-                    source={require('../assets/icons8-google-48.png')}
+                    source={require('../assets/images/icons8-google-48.png')}
                     style={styles.icon}
                     />
                 </View>
@@ -47,7 +48,7 @@ function LoginOptionsScreen({ navigation }) {
             <TouchableOpacity style={styles.optionContainer} onPress={handleEmailPress}>
                 <View style={styles.iconContainer}>
                     <Image
-                    source={require('../assets/email_icon.png')}
+                    source={require('../assets/images/email_icon.png')}
                     style={styles.icon}
                     />
                 </View>
@@ -62,7 +63,7 @@ function LoginOptionsScreen({ navigation }) {
             <Text style={styles.buttonText}>Continue As a Guest</Text>
             <View style={styles.iconContainer}>
                 <Image
-                source={require('../assets/right_arrow.png')}
+                source={require('../assets/images/right_arrow.png')}
                 style={styles.icon}
                 />
             </View> 

@@ -47,7 +47,7 @@ function SignUpScreen({ navigation }) {
                 {/* Logo and Text */}
                 <View style={[globalStyles.logoContainer, styles.logoContainer]}>
                     <Image
-                        source={require('../assets/QuranLogo.png')} 
+                        source={require('../assets/images/QuranLogo.png')} 
                         style={globalStyles.logoImage}    
                     />
                     <View style={{alignContent:'center', justifyContent:'center'}}>
@@ -67,7 +67,7 @@ function SignUpScreen({ navigation }) {
                     <View style={globalStyles.leftIconWrapper}>
                         <View style={globalStyles.iconContainer}>
                             <Image
-                            source={require('../assets/email_icon.png')}
+                            source={require('../assets/images/email_icon.png')}
                             style={globalStyles.icon}
                             />
                         </View>
@@ -85,7 +85,7 @@ function SignUpScreen({ navigation }) {
                     <View style={globalStyles.leftIconWrapper}>
                         <View style={globalStyles.iconContainer}>
                             <Image
-                            source={require('../assets/lock_icon.png')}
+                            source={require('../assets/images/lock_icon.png')}
                             style={globalStyles.icon}
                             />
                         </View>
@@ -101,7 +101,7 @@ function SignUpScreen({ navigation }) {
                     <View style={globalStyles.rightIconWrapper}>
                         <View style={globalStyles.iconContainer}>
                             <Image
-                            source={require('../assets/hide_pass.png')}
+                            source={require('../assets/images/hide_pass.png')}
                             style={globalStyles.icon}
                             />
                         </View>
@@ -114,7 +114,7 @@ function SignUpScreen({ navigation }) {
                     <View style={globalStyles.leftIconWrapper}>
                         <View style={globalStyles.iconContainer}>
                             <Image
-                                source={require('../assets/person.png')}
+                                source={require('../assets/images/person.png')}
                                 style={globalStyles.icon}
                             />
                         </View>
@@ -172,7 +172,7 @@ function SignUpScreen({ navigation }) {
                         >
                             {toggleCheckBox && (
                                 <Image
-                                    source={require('../assets/tick_icon.png')}
+                                    source={require('../assets/images/tick_icon.png')}
                                     style={[
                                         globalStyles.checkboxTick,
                                         toggleCheckBox && styles.checkboxTickPressed, // Apply green tick when pressed
@@ -191,7 +191,7 @@ function SignUpScreen({ navigation }) {
                     <Text style={globalStyles.buttonText}>Sign Up</Text>
                     <View style={globalStyles.buttonIconContainer}>
                         <Image
-                        source={require('../assets/right_arrow.png')}
+                        source={require('../assets/images/right_arrow.png')}
                         style={globalStyles.icon}
                         />
                     </View> 
@@ -202,7 +202,7 @@ function SignUpScreen({ navigation }) {
                 <View>
                     <View style={globalStyles.googleIconContainer}>
                             <Image
-                            source={require('../assets/icons8-google-48.png')}
+                            source={require('../assets/images/icons8-google-48.png')}
                             style={globalStyles.icon}
                             />
                     </View>

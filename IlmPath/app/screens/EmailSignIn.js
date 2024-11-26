@@ -4,9 +4,11 @@ import { globalStyles, width, height, responsiveFontSize, responsiveIconSize } f
 
 function EmailSignIn({ navigation }) { 
 
-    const handleGuestPress = () => {
+    const handleSignInPress = () => {
     // Handle button press action
-    console.log('Guest Button Pressed');
+    console.log('Sign In Button Pressed');
+    navigation.replace('HomeTabs');
+    console.log('Navigated to HomeScreen'); 
     };
 
     const handleGooglePress = () => {
@@ -29,7 +31,7 @@ function EmailSignIn({ navigation }) {
             {/* Logo and Text */}
             <View style={globalStyles.logoContainer}>
                 <Image
-                    source={require('../assets/QuranLogo.png')} 
+                    source={require('../assets/images/QuranLogo.png')} 
                     style={globalStyles.logoImage}    
                 />
                 <View style={{alignContent:'center', justifyContent:'center'}}>
@@ -49,7 +51,7 @@ function EmailSignIn({ navigation }) {
                 <View style={globalStyles.leftIconWrapper}>
                     <View style={globalStyles.iconContainer}>
                         <Image
-                        source={require('../assets/email_icon.png')}
+                        source={require('../assets/images/email_icon.png')}
                         style={globalStyles.icon}
                         />
                     </View>
@@ -67,7 +69,7 @@ function EmailSignIn({ navigation }) {
                 <View style={globalStyles.leftIconWrapper}>
                     <View style={globalStyles.iconContainer}>
                         <Image
-                        source={require('../assets/lock_icon.png')}
+                        source={require('../assets/images/lock_icon.png')}
                         style={globalStyles.icon}
                         />
                     </View>
@@ -83,7 +85,7 @@ function EmailSignIn({ navigation }) {
                 <View style={globalStyles.rightIconWrapper}>
                     <View style={globalStyles.iconContainer}>
                         <Image
-                        source={require('../assets/hide_pass.png')}
+                        source={require('../assets/images/hide_pass.png')}
                         style={globalStyles.icon}
                         />
                     </View>
@@ -99,7 +101,7 @@ function EmailSignIn({ navigation }) {
                     >
                     {toggleCheckBox && (
                         <Image
-                        source={require('../assets/tick_icon.png')}
+                        source={require('../assets/images/tick_icon.png')}
                         style={globalStyles.checkboxTick}
                         />
                     )}
@@ -113,11 +115,11 @@ function EmailSignIn({ navigation }) {
             </View>
 
             {/* Sign In Button */}
-            <TouchableOpacity style={globalStyles.button} onPress={handleGuestPress}>
+            <TouchableOpacity style={globalStyles.button} onPress={handleSignInPress}>
                 <Text style={globalStyles.buttonText}>Sign In</Text>
                 <View style={globalStyles.buttonIconContainer}>
                     <Image
-                    source={require('../assets/right_arrow.png')}
+                    source={require('../assets/images/right_arrow.png')}
                     style={globalStyles.icon}
                     />
                 </View> 
@@ -128,7 +130,7 @@ function EmailSignIn({ navigation }) {
             <View>
                 <View style={globalStyles.googleIconContainer}>
                         <Image
-                        source={require('../assets/icons8-google-48.png')}
+                        source={require('../assets/images/icons8-google-48.png')}
                         style={globalStyles.icon}
                         />
                 </View>

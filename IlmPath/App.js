@@ -1,6 +1,7 @@
 import * as React from 'react';
 import * as SplashScreen from 'expo-splash-screen';
 import { NavigationContainer } from '@react-navigation/native';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { Asset } from 'expo-asset';
 import { useFonts } from 'expo-font';
@@ -9,8 +10,13 @@ import LoginOptionsScreen from './app/screens/LoginOptionsScreen';
 import EmailSignIn from './app/screens/EmailSignIn';
 import SignUpScreen from './app/screens/SignUpScreen';
 import StudentSignUp from './app/screens/StudentSignUp';
+import ReadSurah from './app/screens/ReadSurah';
+import AllSurahListScreen from './app/screens/AllSurahListScreen';
+import BottomTabNavigator from './app/navigation/BottomTabNavigator';
 
 // Prevent splash from auto-hiding
+//const Stack = createStackNavigator();
+const Tab = createBottomTabNavigator();
 SplashScreen.preventAutoHideAsync();
 
 const Stack = createNativeStackNavigator();
@@ -25,14 +31,21 @@ export default function App() {
     'Jost-SemiBold': require('./app/assets/fonts/Jost-SemiBold.ttf'),
   });
 
+  const [dataLoaded] = require('./app/assets/data/QuranDataInJson.json');
+
+
   React.useEffect(() => {
     async function loadResources() {
       try {
         // Load image and fonts in parallel
-        const imageAsset = Asset.fromModule(require('./app/assets/QuranLogo.png')).downloadAsync();
-        await Promise.all([imageAsset, new Promise(resolve => setTimeout(resolve, 2000))]);
+        
+        const imageAsset1 = Asset.fromModule(require('./app/assets/images/IlmPath_Splash.png')).downloadAsync();
+        const imageAsset2 = Asset.fromModule(require('./app/assets/images/QuranLogo.png')).downloadAsync();
+        const imageAsset3 = Asset.fromModule(require('./app/assets/images/horizontalBox_Picture.png')).downloadAsync();
+        const imageAsset4 = Asset.fromModule(require('./app/assets/images/Surah_Background.png')).downloadAsync();
+        await Promise.all([imageAsset1, imageAsset2, imageAsset3, imageAsset4, new Promise(resolve => setTimeout(resolve, 2000))]);
 
-        if (fontsLoaded) {
+        if (fontsLoaded && dataLoaded) {
           setIsReady(true);
           await SplashScreen.hideAsync();
         }
@@ -56,6 +69,10 @@ export default function App() {
         <Stack.Screen name="SignUp" component={SignUpScreen} />
         <Stack.Screen name="StudentSignUp" component={StudentSignUp} />
         <Stack.Screen name="SignIn" component={EmailSignIn} />
+
+        <Stack.Screen name="HomeTabs" component={BottomTabNavigator} />
+        <Stack.Screen name="ReadSurah" component={ReadSurah} />
+        <Stack.Screen name="SurahList" component={AllSurahListScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );

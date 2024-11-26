@@ -4,10 +4,10 @@
     "slug": "IlmPath",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./app/assets/icon.png",
+    "icon": "./app/assets/images/IlmPath_Splash.png",
     "userInterfaceStyle": "light",
     "splash": {
-      "image": "./app/assets/IlmPath_Splash.png",
+      "image": "./app/assets/images/IlmPath_Splash.png",
       "resizeMode": "contain",
       "backgroundColor": "#E0B15E"
     },
@@ -16,13 +16,16 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./app/assets/adaptive-icon.png",
+        "foregroundImage": "./app/assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       }
     },
     "web": {
-      "favicon": "./app/assets/favicon.png"
+      "favicon": "./app/assets/images/favicon.png"
     },
-    "entryPoint": "./App.js"
+    "entryPoint": "./App.js",
+    "assetBundlePatterns": [
+      "app/assets/data/*"
+    ]
   }
 }

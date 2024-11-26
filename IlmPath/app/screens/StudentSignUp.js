@@ -8,9 +8,9 @@ import IntlPhoneInput from 'react-native-international-phone-number';
 function StudentSignUp({ navigation }) {
     const handleSignUpPress = () => {
         // Handle button press action
-    console.log('Sign Up Button Pressed');
-    navigation.navigate('StudentSignUp');
-    console.log('Navigated to StudentSignUp');
+    console.log('HomeTabs Button Pressed');
+    navigation.replace('HomeTabs');
+    console.log('Navigated to HomeTabs');
     };
 
     const handleGooglePress = () => {
@@ -80,7 +80,7 @@ function StudentSignUp({ navigation }) {
                 <View style={globalStyles.headerContainer}>
                     <View style={globalStyles.backButtonContainer}>
                         <Image
-                            source={require('../assets/Back_Icon.png')}
+                            source={require('../assets/images/Back_Icon.png')}
                             style={[globalStyles.icon, globalStyles.backIcon]}
                         />
                         <Text style={[globalStyles.subtitle, globalStyles.backText]}>Fill Your Profile</Text>
@@ -97,7 +97,7 @@ function StudentSignUp({ navigation }) {
                     {/* Large Circle for Profile Picture */}
                     <View style={styles.profilePicture}>
                         <Image
-                            source={require('../assets/Set_Picture.png')} // Replace with your default profile picture path
+                            source={require('../assets/images/Set_Picture.png')} // Replace with your default profile picture path
                             style={styles.profileImage}
                         />
                     </View>
@@ -105,7 +105,7 @@ function StudentSignUp({ navigation }) {
                     {/* Small Circle for Edit Icon */}
                     <TouchableOpacity style={styles.editCircle}>
                         <Image
-                            source={require('../assets/Edit_Icon.png')} // Replace with your edit icon path
+                            source={require('../assets/images/Edit_Icon.png')} // Replace with your edit icon path
                             style={styles.editIcon}
                         />
                     </TouchableOpacity>
@@ -139,7 +139,7 @@ function StudentSignUp({ navigation }) {
                     <View style={[globalStyles.inputWrapper, {flex: 1,flexDirection:'row', paddingBottom: 0} ]}>
                         <View style={[styles.leftIconWrapper, {marginRight: responsiveMargin(10)}]}>
                             <Image
-                                source={require('../assets/Dob_Icon.png')}
+                                source={require('../assets/images/Dob_Icon.png')}
                                 style={styles.icon}
                             />
                         </View>
@@ -274,7 +274,7 @@ function StudentSignUp({ navigation }) {
                     <Text style={globalStyles.buttonText}>Sign Up</Text>
                     <View style={globalStyles.buttonIconContainer}>
                         <Image
-                        source={require('../assets/right_arrow.png')}
+                        source={require('../assets/images/right_arrow.png')}
                         style={globalStyles.icon}
                         />
                     </View> 
