@@ -1,7 +1,40 @@
 import React from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
+import * as Google from 'expo-auth-session/providers/google';
+import { useAuthRequest } from 'expo-auth-session';
+import { FirebaseAuth } from '@react-native-firebase/auth';
 
 function LoginOptionsScreen({ navigation }) {
+
+  const [toggleCheckBox, setToggleCheckBox] = useState(false);
+
+  // Set up Google sign-in with expo-auth-session
+  const [request, response, promptAsync] = Google.useAuthRequest({
+      clientId: '416249078274-lco8opua2mckg395uv88rj9kbi73mdhh.apps.googleusercontent.com', // Use your Web Client ID
+  });
+
+  useEffect(() => {
+      if (response?.type === 'success') {
+          const { id_token } = response.params;
+
+          // Create a Firebase credential with the Google ID token
+          const credential = auth.GoogleAuthProvider.credential(id_token);
+
+          // Sign in with Firebase using the Google credential
+          auth()
+              .signInWithCredential(credential)
+              .then(() => {
+                  console.log('User signed in successfully');
+                  navigation.navigate('Home'); // Navigate to home screen after login
+              })
+              .catch((error) => {
+                  console.error('Error during Firebase sign-in', error);
+              });
+      }
+  }, [response]);
+
+
+
 
   const handleGuestPress = () => {
     // Handle button press action
@@ -11,6 +44,7 @@ function LoginOptionsScreen({ navigation }) {
   const handleGooglePress = () => {
     // Handle button press action
     console.log('Google Button Pressed');
+    promptAsync();
     }; 
 
   const handleEmailPress = () => {
