@@ -189,6 +189,11 @@ export const globalStyles  = StyleSheet.create({
         justifyContent: 'flex-start', // Aligns content at the top
     
     },
+    profileImage: {
+      width: responsiveIconSize(40), // Adjust size slightly smaller than the container
+      height: responsiveIconSize(40),
+      resizeMode: 'contain', // Ensures the image covers the circle
+    },
     backButtonContainer: {
         flexDirection: 'row', // Places icon and text side by side
         alignItems: 'center', // Aligns icon and text vertically
@@ -202,6 +207,17 @@ export const globalStyles  = StyleSheet.create({
         fontSize: responsiveFontSize(20), // Adjust font size
         color: '#545454', // Text color
         fontFamily: 'Jost-SemiBold', // Ensure font consistency
+    },
+    rowContainer: {
+      width: width/1.15, // Adjust width for two boxes side by side
+      height: height/17,
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      backgroundColor: '#EAC98F',  
+      borderRadius: 8,
+      marginVertical: responsiveMargin(20),
+      paddingHorizontal: responsiveMargin(20),
     },
 });
 
@@ -252,6 +268,28 @@ export const NoteIcon = () => (
     />
   </Svg>
 );
+
+export const InsertPicIcon = () => (
+  <Svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+    <Path
+      d="M16 2V16H2V2H16ZM16 0H2C0.9 0 0 0.9 0 2V16C0 17.1 0.9 18 2 18H16C17.1 18 18 17.1 18 16V2C18 0.9 17.1 0 16 0ZM11.14 8.86L8.14 12.73L6 10.14L3 14H15L11.14 8.86Z"
+      fill="#4E240D" // Adjust color as needed
+      style={styles.iconStyle}
+    />
+  </Svg>
+);
+
+export const SessionsIcon = ({ color }) => (
+  <View style={{ marginTop: responsiveMargin(4) }}>
+    <Svg width="25" height="25" viewBox="0 0 24 24" fill="none">
+      <Path
+        d="M10.0007,0 C12.6497,0 15.1997,1.05 17.0697,2.93 C18.9497,4.811 20.0007,7.35 20.0007,10.01 C20.0007,13.51 18.1597,16.76 15.1597,18.57 C12.1597,20.38 8.4297,20.48 5.3307,18.83 L5.3307,18.83 L5.2997,18.83 C5.0007,18.71 4.7597,18.5 4.4797,18.36 C4.1707,18.23 3.8197,18.21 3.5007,18.311 C2.7597,18.57 2.0097,18.78 1.2397,18.96 C0.8397,18.97 0.7197,18.73 0.7197,18.34 C0.8997,17.55 1.1397,16.769 1.4207,16.01 C1.5297,15.68 1.5007,15.33 1.3307,15.019 L1.3307,15.019 L1.1307,14.63 C0.3897,13.22 0.0007,11.65 0.0007,10.061 L0.0007,10.061 L0.0007,10 C0.0007,7.35 1.0497,4.8 2.9297,2.93 C4.8097,1.05 7.3497,0 10.0007,0 Z M14.6097,8.73 C13.9097,8.73 13.3307,9.3 13.3307,10.01 C13.3307,10.71 13.9097,11.29 14.6097,11.29 C15.3197,11.29 15.8897,10.71 15.8897,10.01 C15.8897,9.3 15.3197,8.73 14.6097,8.73 Z M10.0007,8.73 C9.2907,8.73 8.7197,9.3 8.7197,10.01 C8.7197,10.71 9.2907,11.29 10.0007,11.29 C10.7107,11.29 11.2797,10.71 11.2797,10.01 C11.2797,9.3 10.7107,8.73 10.0007,8.73 Z M5.3897,8.73 C4.6797,8.73 4.1097,9.3 4.1097,10.01 C4.1097,10.71 4.6797,11.29 5.3897,11.29 C6.0897,11.29 6.6707,10.71 6.6707,10.01 C6.6707,9.3 6.0897,8.73 5.3897,8.73 Z"
+        fill={color} // Change color based on focus
+      />
+    </Svg>
+  </View>
+);
+
 
 // Reusable Component
 export const SurahBox = ({ id, arabicName, romanName, place, totalAyahs, onPress }) => (
@@ -351,6 +389,42 @@ export const SurahBox = ({ id, arabicName, romanName, place, totalAyahs, onPress
       fontWeight: 'bold',
       color: '#4E240D',
     },
-    
+    profilePicture: {
+      width: responsiveIconSize(50), // Diameter of the circle
+      height: responsiveIconSize(50),    
+      borderRadius: responsiveIconSize(50), // Makes it a circle
+      backgroundColor: '#E8F1FF', // Placeholder background color
+      justifyContent: 'flex-end',
+      alignItems: 'center',
+      alignSelf: 'center',
+      overflow: 'hidden', // Ensures the image fits within the circle
+    },
+    horizontalLine: {
+      width: width/1.15, // Adjust to ensure it's wide enough
+      height: 1, // Thin line
+      backgroundColor: 'white', // Use black for visibility; adjust if needed
+      color: 'white',
+      borderColor: 'white', // Use black for visibility; adjust if needed
+      alignSelf: 'center', // Center the line horizontally
+    },
     
   });
+
+  export const ProfileBox = ({ name, expertise, picture, onPress }) => (
+    <TouchableOpacity onPress={onPress}>
+      <View style={[globalStyles.rowContainer, {paddingHorizontal:responsiveMargin(10), backgroundColor: '#F0DEAE'}]}>
+        {/* Circular Image */}
+        <View style={styles.profilePicture}>
+          <Image source={picture} style={globalStyles.profileImage} />
+        </View>
+        {/* Name and Expertise */}
+        <View style={styles.textContainer}>
+          <Text style={{fontFamily:'Jost-SemiBold',fontSize:responsiveFontSize(15),marginBottom:responsiveMargin(5)}}>{name}</Text>
+          <Text style={{fontSize:responsiveFontSize(10), opacity:0.5}}>{expertise}</Text>
+        </View>
+      </View>
+  
+      {/* Horizontal Line */}
+      <View style={styles.horizontalLine} />
+    </TouchableOpacity>
+  );
