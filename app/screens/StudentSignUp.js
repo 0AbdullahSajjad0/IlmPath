@@ -1,251 +1,385 @@
-import React, { useState } from 'react';
-import {
-  View,
-  Text,
-  Image,
-  TouchableOpacity,
-  TextInput,
-  ScrollView,
-  StyleSheet,
-  Platform,
-  Alert,
-} from 'react-native';
-import {
-  globalStyles,
-  responsiveIconSize,
-  responsiveMargin,
-} from '../styles/globalStyles';
-import DateTimePicker from '@react-native-community/datetimepicker';
+import React, { useState} from 'react';
+import { View, Text, Image, TouchableOpacity, TextInput, ScrollView, StyleSheet, Platform  } from 'react-native';
+import { globalStyles, responsiveIconSize, responsiveFontSize, responsiveNegativeMargin, responsiveMargin } from '../styles/globalStyles';
+import DateTimePicker from '@react-native-community/datetimepicker'; // Import DateTimePicker
 import DropDownPicker from 'react-native-dropdown-picker';
 import IntlPhoneInput from 'react-native-international-phone-number';
 
-function StudentSignUp({ navigation, route }) {
-  const { email, password, role } = route.params;
-
-  const [name, setName] = useState('');
-  const [nickName, setNickName] = useState('');
-  const [dob, setDob] = useState('');
-  const [phoneNumber, setPhoneNumber] = useState('');
-  const [selectedCountry, setSelectedCountry] = useState({});
-  const [gender, setGender] = useState(null);
-  const [showDatePicker, setShowDatePicker] = useState(false);
-  const [dropdownOpen, setDropdownOpen] = useState(false);
-
-  // Handle phone number changes
-  const handlePhoneNumberChange = (data) => {
-    if (!data || typeof data !== 'object') {
-      console.error('Invalid data received from IntlPhoneInput:', data);
-      return;
-    }
-
-    const { phoneNumber, isValid, dialCode } = data;
-
-    if (typeof phoneNumber === 'string' && phoneNumber.trim() !== '') {
-      console.log(`PhoneNumber: ${phoneNumber}, IsValid: ${isValid}, DialCode: ${dialCode}`);
-      setPhoneNumber(phoneNumber);
-    } else {
-      console.warn('PhoneNumber is missing or invalid:', data);
-    }
-  };
-
-  // Handle country selection changes
-  const handleSelectedCountryChange = (country) => {
-    if (!country || typeof country !== 'object') {
-      console.error('Invalid country data received from IntlPhoneInput:', country);
-      return;
-    }
-
-    console.log('Selected Country:', country);
-    setSelectedCountry(country);
-  };
-
-  // Function to handle sign-up form submission
-  const handleSignUpPress = async () => {
-    if (!name || !dob || !phoneNumber || !gender) {
-      Alert.alert('Error', 'Please fill in all the required fields.');
-      return;
-    }
-
-    const userData = {
-      email,
-      password,
-      role,
-      name,
-      nickName,
-      dob,
-      phoneNo: phoneNumber,
-      gender,
-      country: selectedCountry.name?.en || 'Unknown',
+function StudentSignUp({ navigation }) {
+    const handleSignUpPress = () => {
+        // Handle button press action
+    console.log('HomeTabs Button Pressed');
+    navigation.replace('HomeTabs');
+    console.log('Navigated to HomeTabs');
     };
 
-    try {
-      const response = await fetch('http://192.168.1.7:5000/signup', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(userData),
-      });
+    const handleGooglePress = () => {
+    // Handle button press action
+    console.log('Google Button Pressed');
+    }; 
 
-      if (response.ok) {
-        Alert.alert('Success', 'Account created successfully!');
-        navigation.replace('HomeTabs');
-      } else {
-        const errorData = await response.json();
-        Alert.alert('Error', errorData.message || 'Sign-up failed.');
+    const handleSignInPress = () => {
+    // Handle button press action
+    console.log('Sign In Button Pressed');
+    navigation.navigate('SignIn');
+    console.log('Navigated to EmailSignIn');
+    };
+
+    const [selectedCountry, setSelectedCountry] = useState(null);
+    const [inputValue, setInputValue] = useState('');
+
+    function handleInputValue(phoneNumber) {
+        setInputValue(phoneNumber);
       }
-    } catch (error) {
-      console.error('Error during sign-up:', error);
-      Alert.alert('Error', 'Something went wrong. Please try again.');
-    }
-  };
+    
+      function handleSelectedCountry(country) {
+        setSelectedCountry(country);
+      }
 
-  // Handle date picker changes
-  const handleDateChange = (event, selectedDate) => {
-    if (Platform.OS === 'ios') {
-      if (selectedDate) setDob(selectedDate.toISOString().split('T')[0]);
-    } else {
-      setShowDatePicker(false);
-      if (selectedDate) setDob(selectedDate.toISOString().split('T')[0]);
-    }
-  };
+    const [dob, setDob] = useState(''); // State to store selected date
+    const [showDatePicker, setShowDatePicker] = useState(false); // State to control the date picker visibility
+    const [tempDate, setTempDate] = useState(new Date()); // Temporary date state to manage selection
 
-  return (
-    <View style={globalStyles.container}>
-      <View style={globalStyles.headerContainer}>
-        <TouchableOpacity onPress={() => navigation.goBack()} style={globalStyles.backButtonContainer}>
-          <Image
-            source={require('../assets/images/Back_Icon.png')}
-            style={[globalStyles.icon, globalStyles.backIcon]}
-          />
-          <Text style={[globalStyles.subtitle, globalStyles.backText]}>Fill Your Profile</Text>
-        </TouchableOpacity>
-      </View>
+    
+    const handleDateChange = (event, selectedDate) => {
+        if (Platform.OS === 'ios') {
+            // On iOS, keep updating tempDate
+            if (selectedDate) {
+                setTempDate(selectedDate);
+            }
+        } else {
+            // On Android, confirm the selection
+            setShowDatePicker(false); // Close picker
+            if (selectedDate) {
+                const formattedDate = selectedDate.toISOString().split('T')[0]; // Format the date
+                setDob(formattedDate); // Save the selected date
+            }
+        }
+    };
 
-      <ScrollView contentContainerStyle={globalStyles.formContainer} showsVerticalScrollIndicator={false}>
-        <View style={styles.profileContainer}>
-          <View style={styles.profilePicture}>
-            <Image
-              source={require('../assets/images/Set_Picture.png')}
-              style={styles.profileImage}
-            />
-          </View>
-          <TouchableOpacity style={styles.editCircle}>
-            <Image
-              source={require('../assets/images/Edit_Icon.png')}
-              style={styles.editIcon}
-            />
-          </TouchableOpacity>
-        </View>
+    const handleConfirmDate = () => {
+        // On iOS, confirm the selected date and close picker
+        setDob(tempDate.toISOString().split('T')[0]);
+        setShowDatePicker(false);
+    };
 
-        <View style={[globalStyles.inputWrapper, { padding: 20 }]}>
-          <TextInput
-            style={globalStyles.textInput}
-            placeholder="Full Name"
-            placeholderTextColor="#A9A9A9"
-            value={name}
-            onChangeText={setName}
-          />
-        </View>
+   
+        // State for DropDownPicker
+    const [open, setOpen] = useState(false); // Controls dropdown visibility
+    const [value, setValue] = useState(null); // Holds the selected value
+    const [items, setItems] = useState([
+        { label: 'Male', value: 'male' },
+        { label: 'Female', value: 'female' },
+    ]);
 
-        <View style={[globalStyles.inputWrapper, { padding: 20 }]}>
-          <TextInput
-            style={globalStyles.textInput}
-            placeholder="Nick Name"
-            placeholderTextColor="#A9A9A9"
-            value={nickName}
-            onChangeText={setNickName}
-          />
-        </View>
+    
+    return (
+        <View style={globalStyles.container}>
+                
+                {/* Back Button */}
+                <View style={globalStyles.headerContainer}>
+                    <View style={globalStyles.backButtonContainer}>
+                        <Image
+                            source={require('../assets/images/Back_Icon.png')}
+                            style={[globalStyles.icon, globalStyles.backIcon]}
+                        />
+                        <Text style={[globalStyles.subtitle, globalStyles.backText]}>Fill Your Profile</Text>
+                    </View>
+                </View>
+                
+                <ScrollView
+                        contentContainerStyle={globalStyles.formContainer}
+                        showsVerticalScrollIndicator={false}
+                    >
+    
+                
+                <View style={styles.profileContainer}>
+                    {/* Large Circle for Profile Picture */}
+                    <View style={styles.profilePicture}>
+                        <Image
+                            source={require('../assets/images/Set_Picture.png')} // Replace with your default profile picture path
+                            style={styles.profileImage}
+                        />
+                    </View>
 
-        <View style={[globalStyles.inputWrapper, { paddingHorizontal: responsiveMargin(11) }]}>
-          <TouchableOpacity
-            style={styles.textInput}
-            onPress={() => setShowDatePicker(true)}
-          >
-            <Text style={{ color: dob ? '#000' : '#A9A9A9' }}>{dob || 'Date of Birth'}</Text>
-          </TouchableOpacity>
-          {showDatePicker && (
-            <DateTimePicker
-              value={new Date()}
-              mode="date"
-              display={Platform.OS === 'ios' ? 'spinner' : 'default'}
-              maximumDate={new Date()}
-              onChange={handleDateChange}
-            />
-          )}
-        </View>
+                    {/* Small Circle for Edit Icon */}
+                    <TouchableOpacity style={styles.editCircle}>
+                        <Image
+                            source={require('../assets/images/Edit_Icon.png')} // Replace with your edit icon path
+                            style={styles.editIcon}
+                        />
+                    </TouchableOpacity>
+                </View>
 
-        <View style={styles.phoneInputContainer}>
-          <IntlPhoneInput
-            defaultCountry="US"
-            value={phoneNumber}
-            onChangePhoneNumber={handlePhoneNumberChange}
-            onChangeSelectedCountry={handleSelectedCountryChange}
-            phoneInputStyles={{
-              container: { backgroundColor: 'white', height: responsiveIconSize(55) },
-              input: { color: 'black' },
-            }}
-          />
-        </View>
 
-        <View style={[globalStyles.inputWrapper, { padding: 14 }]}>
-          <DropDownPicker
-            open={dropdownOpen}
-            value={gender}
-            items={[
-              { label: 'Male', value: 'male' },
-              { label: 'Female', value: 'female' },
-            ]}
-            setOpen={setDropdownOpen}
-            setValue={setGender}
-            placeholder="Gender"
-            style={globalStyles.textInput}
-          />
-        </View>
+                {/* Email and Password Input */}
+                <View style={[globalStyles.inputWrapper, {padding:20}]}>
+                    
+                    <TextInput
+                        style={globalStyles.textInput}
+                        placeholder="Full Name"
+                        placeholderTextColor="#A9A9A9"
+                        keyboardType="default"
+                        autoCapitalize="none"
+                    />
+                    
+                </View>
+                <View style={[globalStyles.inputWrapper, {padding:20}]}>
+                    <TextInput
+                        style={globalStyles.textInput}
+                        placeholder="Nick Name"
+                        placeholderTextColor="#A9A9A9"
+                        keyboardType="default"
+                        autoCapitalize="none"
+                    />
+                </View>
 
-        <TouchableOpacity style={globalStyles.button} onPress={handleSignUpPress}>
-          <Text style={globalStyles.buttonText}>Sign Up</Text>
-        </TouchableOpacity>
-      </ScrollView>
-    </View>
-  );
+                <View style={[globalStyles.inputWrapper,{paddingBottom: 0, paddingHorizontal:responsiveMargin(11) }]}>
+                    {/* Date of Birth Input */}
+                    <View style={[globalStyles.inputWrapper, {flex: 1,flexDirection:'row', paddingBottom: 0} ]}>
+                        <View style={[styles.leftIconWrapper, {marginRight: responsiveMargin(10)}]}>
+                            <Image
+                                source={require('../assets/images/Dob_Icon.png')}
+                                style={styles.icon}
+                            />
+                        </View>
+                        <TouchableOpacity
+                            style={[styles.textInput]}
+                            onPress={() => setShowDatePicker(true)}
+                        >
+                            <Text style={styles.dateText}>
+                                {dob ? dob : 'Date of Birth'} {/* Show selected date or placeholder */}
+                            </Text>
+                        </TouchableOpacity>
+                    </View>
+
+                    {/* Show DateTimePicker */}
+                    {showDatePicker && (
+                        <View>
+                            <DateTimePicker
+                                value={tempDate} // Use temporary date state
+                                mode="date" // Date picker mode
+                                display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+                                maximumDate={new Date()} // Limit to current or past dates
+                                onChange={handleDateChange} // Handle date changes
+                            />
+                            {/* Done button for iOS */}
+                            {Platform.OS === 'ios' && (
+                                <TouchableOpacity
+                                    style={styles.confirmButton}
+                                    onPress={handleConfirmDate}
+                                >
+                                    <Text style={styles.confirmText}>Done</Text>
+                                </TouchableOpacity>
+                            )}
+                        </View>
+                    )}
+                </View>
+
+                {/* Phone Number Input */}
+                <View style={styles.phoneInputContainer}>
+                    <IntlPhoneInput
+                        value={inputValue}
+                        onChangePhoneNumber={handleInputValue}
+                        selectedCountry={selectedCountry}
+                        onChangeSelectedCountry={handleSelectedCountry}
+                        defaultCountry="US" // Set default country
+                        defaultValue="+12505550199"
+                        phoneInputStyles={{
+                            container: {
+                              flex: 1,
+                              backgroundColor: 'white',
+                              borderWidth: 1,
+                              borderStyle: 'solid',
+                              height: responsiveIconSize(55),
+                              borderRadius: 12,
+                              borderColor: 'white',
+                              alignItems:'center',
+                              
+                            },
+                            flagContainer: {
+                              backgroundColor: 'white',
+                              justifyContent: 'center',
+                              
+                            },
+                            flag: {},
+                            caret: {
+                              color: 'black',
+                              fontSize: 16,
+                            },
+                            divider: {
+                              backgroundColor: 'white',
+                            },
+                            callingCode: {
+                              fontSize: responsiveFontSize(15),
+                              color: 'black',
+                              marginLeft: responsiveNegativeMargin(-15),
+                            },
+                            input: {
+                              flex: 1,
+                              color: 'black',
+                              textAlign: 'left',
+                            },
+                          }}
+                    />
+                </View>
+
+                {/* Gender DropDown */}
+                <View style={[globalStyles.inputWrapper, {padding:14}]}>
+                    
+
+                    {/* DropDownPicker */}
+                    <View style={{ flex: 1, zIndex: 1000 }}>
+                    <DropDownPicker
+                        open={open}
+                        value={value}
+                        items={items}
+                        setOpen={setOpen}
+                        setValue={setValue}
+                        setItems={setItems}
+                        placeholder="Gender"
+                        style={{
+                            backgroundColor: 'white',
+                            borderWidth: 0, 
+                            justifyContent: 'center', // Center placeholder/selected text
+                            height: responsiveIconSize(39), // Match parent view height
+                            marginLeft: responsiveNegativeMargin(-10), // Adjust margin
+                            marginTop: responsiveNegativeMargin(-10), // Adjust margin
+                        }}
+                        textStyle={{
+                            fontSize: responsiveFontSize(13), // Match placeholder text size
+                            marginLeft: responsiveMargin(6), // Adjust margin
+                            color: '#545454', // Placeholder text color
+                        }}
+                        dropDownContainerStyle={{
+                            backgroundColor: 'white',
+                            elevation: 3, // Shadow for dropdown
+                            marginTop: responsiveNegativeMargin(-5), // Adjust margin
+                            zIndex: 1000, // Correct stacking order
+                        }}
+                        listMode='SCROLLVIEW'
+                        arrowIconStyle={{
+                            marginRight: responsiveNegativeMargin(-15), // Move the arrow icon slightly to the right
+                        }}
+                        onChangeValue={(selectedValue) => {
+                            console.log('Selected Role:', selectedValue);
+                        }}
+                    />
+                    </View>
+                </View>
+
+    
+                {/* Sign Up Button */}
+                <TouchableOpacity style={[globalStyles.button, {marginTop:50, marginBottom:50}]} onPress={handleSignUpPress}>
+                    <Text style={globalStyles.buttonText}>Sign Up</Text>
+                    <View style={globalStyles.buttonIconContainer}>
+                        <Image
+                        source={require('../assets/images/right_arrow.png')}
+                        style={globalStyles.icon}
+                        />
+                    </View> 
+                </TouchableOpacity> 
+    
+                
+                </ScrollView>
+            </View>
+    );
 }
 
 const styles = StyleSheet.create({
-  profileContainer: {
-    alignItems: 'center',
-    marginVertical: responsiveMargin(20),
-    position: 'relative',
-  },
-  profilePicture: {
-    width: responsiveIconSize(100),
-    height: responsiveIconSize(100),
-    borderRadius: responsiveIconSize(50),
-    backgroundColor: '#E8F1FF',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  profileImage: {
-    width: responsiveIconSize(80),
-    height: responsiveIconSize(80),
-    resizeMode: 'contain',
-  },
-  editCircle: {
-    position: 'absolute',
-    bottom: -10,
-    right: -10,
-    width: responsiveIconSize(30),
-    height: responsiveIconSize(30),
-    borderRadius: responsiveIconSize(15),
-    backgroundColor: '#BC6C25',
-    justifyContent: 'center',
-    alignItems: 'center',
-    elevation: 5,
-  },
-  phoneInputContainer: {
-    flex: 1,
-    borderRadius: 8,
-    margin: responsiveMargin(20),
-  },
+    pickerContainer: {
+        flex: 1, // Allow RNPickerSelect to take up the remaining space
+        justifyContent: 'center',
+        zIndex: 1, // Ensure the picker is above the input
+    },
+    pickerInput: {
+        width: '100%', // Ensure the picker input spans the container width
+        color: '#000', // Text color for selected value
+        paddingVertical: 10, // Adjust padding for consistent spacing
+    },
+    checkboxRow: {
+        flexDirection: 'row',
+        alignItems: 'flex-start',
+        alignSelf: 'flex-start',
+        justifyContent: 'flex-start', 
+        width: '100%', 
+        marginBottom: 10,
+    },
+    checkboxButton: {
+        width: responsiveIconSize(18),
+        height: responsiveIconSize(18),
+        borderWidth: 3, // Thicker border
+        borderColor: '#000', // Default black border
+        borderRadius: 9, // Makes it a circle
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginRight: responsiveMargin(10), 
+        backgroundColor: 'white',
+    },
+    checkboxButtonPressed: {
+        borderColor: '#0f0', // Green border when pressed
+    },
+    checkboxTickPressed: {
+        tintColor: '#0f0', // Green color when pressed
+    },
+    profileContainer: {
+        alignItems: 'center', // Center the profile picture horizontally
+        marginTop: responsiveMargin(40), // Add margin above the profile container
+        marginBottom: responsiveMargin(40), // Add margin below the profile container
+        position: 'relative', // Allow absolute positioning for the edit circle
+    },
+    profilePicture: {
+        width: responsiveIconSize(100), // Diameter of the circle
+        height: responsiveIconSize(100),    
+        borderRadius: responsiveIconSize(50), // Makes it a circle
+        backgroundColor: '#E8F1FF', // Placeholder background color
+        justifyContent: 'flex-end',
+        alignItems: 'center',
+        overflow: 'hidden', // Ensures the image fits within the circle
+    },
+    profileImage: {
+        width: responsiveIconSize(80), // Adjust size slightly smaller than the container
+        height: responsiveIconSize(80),
+        resizeMode: 'contain', // Ensures the image covers the circle
+    },
+    editCircle: {
+        position: 'absolute', // Positions it relative to the profile picture
+        bottom: responsiveNegativeMargin(0), // Adjusts position slightly outside the bottom-right corner
+        right: responsiveNegativeMargin(0),
+        width: responsiveIconSize(30), // Diameter of the edit circle
+        height: responsiveIconSize(30),
+        borderRadius: responsiveIconSize(15), // Makes it a circle
+        backgroundColor: '#BC6C25', // White background for the edit circle
+        justifyContent: 'center',
+        alignItems: 'center',
+        elevation: 5, // Adds shadow for better visibility
+    },
+    editIcon: {
+        width: responsiveIconSize(16), // Adjust size of the edit icon
+        height: responsiveIconSize(16),
+        marginLeft: responsiveMargin(2),
+        resizeMode: 'contain', // Ensures the icon fits well
+    },
+    phoneNumberWrapper: {
+        flex: 1,
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginVertical: responsiveMargin(10),
+        paddingHorizontal: responsiveMargin(18),
+        borderRadius: 10,
+        borderColor: 'white', // Light gray border
+    },
+    phoneInputContainer: {
+        flex: 1,
+        borderRadius: 8,
+        margin: responsiveMargin(20),
+        marginTop: 0,
+    },
+    intlPhoneInput: {
+        fontSize: responsiveFontSize(14),
+        color: '#000',
+    }
 });
 
 export default StudentSignUp;
