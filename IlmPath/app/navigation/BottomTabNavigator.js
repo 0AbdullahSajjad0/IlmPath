@@ -3,6 +3,7 @@ import { View } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import {responsiveFontSize, responsiveMargin} from '../styles/globalStyles';
 import HomeScreen from '../screens/HomeScreen';
+import SessionsScreen from '../screens/SessionsScreen';
 import { Svg, Path } from 'react-native-svg';
 
 const HomeIcon = ({ focused }) => (
@@ -77,7 +78,7 @@ export default function BottomTabNavigator() {
     >
       <Tab.Screen name="Home" component={HomeScreen} />
       <Tab.Screen name="Lesson" component={HomeScreen} />
-      <Tab.Screen name="Session" component={HomeScreen} />
+      <Tab.Screen name="Session" component={SessionsScreen} />
       <Tab.Screen name="Profile" component={HomeScreen} />
     </Tab.Navigator>
   );

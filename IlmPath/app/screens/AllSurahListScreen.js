@@ -72,17 +72,6 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     color: 'white',
   },
-  rowContainer: {
-    width: width/1.15, // Adjust width for two boxes side by side
-    height: height/17,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    backgroundColor: '#EAC98F',  
-    borderRadius: 8,
-    marginVertical: responsiveMargin(20),
-    paddingHorizontal: responsiveMargin(20),
-  },
   numberCircle: {
     width: responsiveIconSize(30),
     height: responsiveIconSize(30),

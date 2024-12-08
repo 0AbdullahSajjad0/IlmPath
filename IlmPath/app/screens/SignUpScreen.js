@@ -8,9 +8,18 @@ import { TouchableWithoutFeedback, Keyboard } from 'react-native';
 function SignUpScreen({ navigation }) {
         const handleSignUpPress = () => {
         // Handle button press action
-        console.log('Sign Up Button Pressed');
-        navigation.navigate('StudentSignUp');
-        console.log('Navigated to StudentSignUp');
+        if(value == 'student'){
+            console.log('Student Role Selected');
+            console.log('Sign Up Button Pressed');
+            navigation.navigate('StudentSignUp');
+            console.log('Navigated to StudentSignUp');
+        }
+        else if(value == 'ullama'){
+            console.log('Ullama Role Selected');
+            console.log('Sign Up Button Pressed');
+            navigation.navigate('UllamaSignUp');
+            console.log('Navigated to UllamaSignUp');
+        }
         };
     
         const handleGooglePress = () => {
@@ -20,6 +29,7 @@ function SignUpScreen({ navigation }) {
     
         const handleSignInPress = () => {
         // Handle button press action
+        
         console.log('Sign In Button Pressed');
         navigation.navigate('SignIn');
         console.log('Navigated to EmailSignIn');

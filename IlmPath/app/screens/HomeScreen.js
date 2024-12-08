@@ -8,6 +8,7 @@ const QuranData = require('../assets/data/QuranDataInJson.json');
 export default function HomeScreen({ navigation }) {
   
   const [surahData, setSurahData] = useState([]);
+  const [completedAyahs, setCompletedAyahs] = useState(5);
 
   useEffect(() => {
     // Create a Map to store unique surahs
@@ -35,7 +36,18 @@ export default function HomeScreen({ navigation }) {
     navigation.navigate('SurahList');
     console.log('Navigated to All Surah List'); 
   };
-  
+
+  const handleContinueButton = () => {
+    // Handle button press action
+    console.log('Continue Button Pressed');
+    navigation.navigate('DailyRecitationScreen', { completedAyahs });
+    console.log('Navigated to Daily Recitation Screen');
+  }
+
+  const progress = Math.min(parseFloat((completedAyahs / 6236).toFixed(2)), 1);
+  console.log("Progress value (type-checked):", typeof progress, progress); // Should log 'number'
+
+
   return (
     <View style={[globalStyles.container, {backgroundColor: '#F0DEAE'}]}>
       <ScrollView
@@ -51,21 +63,28 @@ export default function HomeScreen({ navigation }) {
           <View style={styles.profilePicture}>
               <Image
                   source={require('../assets/images/Set_Picture.png')} // Replace with your default profile picture path
-                  style={styles.profileImage}
+                  style={globalStyles.profileImage}
               />
           </View>
         </View>
 
         {/* Learning Progress */}
         <View style={styles.learningProgressBox}>
-          <Text style={styles.learningText}>Learned today</Text>
-          <View style={{flexDirection:'row', alignItems:'center'}}>
-            <Text style={[styles.progressText,{fontSize: responsiveFontSize(20)}]}>46min</Text>
-            <Text style={styles.progressText}> / 60min</Text>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+            <View>
+            <Text style={styles.learningText}>Learned today</Text>
+            <View style={{flexDirection:'row', alignItems:'center'}}>
+              <Text style={[styles.progressText,{fontSize: responsiveFontSize(20)}]}>46min</Text>
+              <Text style={styles.progressText}> / 60min</Text>
+            </View>
+            </View>
+            <TouchableOpacity style={styles.progressButton} onPress={handleContinueButton}>
+              <Text style={styles.progressButtonText}>Continue</Text>
+            </TouchableOpacity>
           </View>
           
           <ProgressBar 
-            progress={0.6} // 76% progress (46/60)
+            progress={progress}   // 76% progress (46/60)
             color="#4E240D"
             style={styles.progressBar}
           />
@@ -159,11 +178,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     alignSelf: 'flex-start',
     overflow: 'hidden', // Ensures the image fits within the circle
-  },
-  profileImage: {
-      width: responsiveIconSize(40), // Adjust size slightly smaller than the container
-      height: responsiveIconSize(40),
-      resizeMode: 'contain', // Ensures the image covers the circle
   },
   learningProgressBox: {
     width: width - 42,
@@ -270,6 +284,19 @@ const styles = StyleSheet.create({
     fontSize: responsiveFontSize(12), // Button text size
     fontFamily: 'Jost-SemiBold', // Bold font
     color: 'white', // Button text color
-  }
+  },
+  progressButton: {
+    backgroundColor: '#E0B15E', // Button background color
+    borderRadius: 8, // Rounded corners
+    paddingVertical: responsiveMargin(8), // Vertical padding
+    paddingHorizontal: responsiveMargin(12), // Horizontal padding
+    alignItems: 'center', // Center align text
+    justifyContent: 'center',
+  },
+  progressButtonText: {
+    fontSize: responsiveFontSize(12), // Adjust text size
+    color: 'white', // Text color
+    fontWeight: 'bold', // Bold text
+  },
   
 });
