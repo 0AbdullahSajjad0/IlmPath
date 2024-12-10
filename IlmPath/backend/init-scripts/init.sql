@@ -39,6 +39,17 @@ CREATE TABLE progress (
     PRIMARY KEY (id, user_id)           -- Composite primary key
 );
 
+-- Create "notes" table
+CREATE TABLE IF NOT EXISTS notes (
+    id SERIAL PRIMARY KEY,              -- Auto-incrementing unique identifier
+    user_id INT NOT NULL,               -- User identifier (not a foreign key)
+    user_role VARCHAR(10) NOT NULL,     -- Role to distinguish between student and ulama
+    note_text TEXT NOT NULL,            -- Note content
+    note_surrah INT NOT NULL,           -- Surah number
+    note_ayah INT NOT NULL              -- Ayah number
+);
+
+
 INSERT INTO progress (user_id, user_role, progress)
 VALUES
 (1, 'student', 120),  -- Ali Khan has completed 120 Ayahs
