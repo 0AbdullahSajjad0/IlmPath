@@ -21,7 +21,7 @@ function EmailSignIn({ navigation }) {
         try {
             // API call
             console.log("Sending sign up request 1");
-            const response = await fetch("http://192.168.100.75:5000/signin", {
+            const response = await fetch("http://172.17.9.4:5000/signin", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify(signInData),

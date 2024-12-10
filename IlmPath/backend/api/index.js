@@ -249,6 +249,138 @@ app.post("/getProgress", async (req, res) => {
   }
 });
 
+app.post("/saveNote", async (req, res) => {
+  const { user_id, user_role, note_text, note_surrah, note_ayah } = req.body;
+
+  // Input validation
+  if (!user_id || !user_role || !note_text || !note_surrah || !note_ayah) {
+    return res.status(400).json({ message: "All fields are required." });
+  }
+
+  try {
+    // Validate user_role
+    if (user_role !== "student" && user_role !== "ullama") {
+      return res.status(400).json({ message: "Invalid role specified." });
+    }
+
+    // Check if a note already exists for the specific user, role, Surah, and Ayah
+    const existingNote = await pool.query(
+      `SELECT id FROM notes WHERE user_id = $1 AND user_role = $2 AND note_surrah = $3 AND note_ayah = $4`,
+      [user_id, user_role, note_surrah, note_ayah]
+    );
+
+    if (existingNote.rows.length > 0) {
+      // If a note exists, update the existing row
+      const updateResult = await pool.query(
+        `UPDATE notes 
+         SET note_text = $1 
+         WHERE id = $2 
+         RETURNING id`,
+        [note_text, existingNote.rows[0].id]
+      );
+
+      console.log("Note updated successfully:", updateResult.rows[0]);
+      return res.status(200).json({ message: "Note updated successfully", noteId: updateResult.rows[0].id });
+    } else {
+      // If no note exists, insert a new row
+      const insertResult = await pool.query(
+        `INSERT INTO notes (user_id, user_role, note_text, note_surrah, note_ayah)
+         VALUES ($1, $2, $3, $4, $5) RETURNING id`,
+        [user_id, user_role, note_text, note_surrah, note_ayah]
+      );
+
+      console.log("Note added successfully:", insertResult.rows[0]);
+      return res.status(201).json({ message: "Note added successfully", noteId: insertResult.rows[0].id });
+    }
+  } catch (error) {
+    console.error("Error adding/updating note:", error);
+    return res.status(500).json({ message: "Internal server error." });
+  }
+});
+
+// Retrieve Note Endpoint
+app.post("/getNote", async (req, res) => {
+  const { user_id, user_role, note_surrah, note_ayah } = req.body;
+
+  // Input validation
+  if (!user_id || !user_role || !note_surrah || !note_ayah) {
+    return res.status(400).json({ message: "All fields are required." });
+  }
+
+  try {
+    // Validate user_role
+    if (user_role !== "student" && user_role !== "ullama") {
+      return res.status(400).json({ message: "Invalid role specified." });
+    }
+
+    // Query to retrieve the note
+    const noteResult = await pool.query(
+      `SELECT note_text 
+       FROM notes 
+       WHERE user_id = $1 AND user_role = $2 AND note_surrah = $3 AND note_ayah = $4`,
+      [user_id, user_role, note_surrah, note_ayah]
+    );
+
+    if (noteResult.rows.length > 0) {
+      // Note found
+      console.log("Note retrieved successfully:", noteResult.rows[0]);
+      return res.status(200).json({
+        message: "Note retrieved successfully",
+        note: noteResult.rows[0].note_text,
+      });
+    } else {
+      // Note not found
+      return res.status(404).json({ message: "Note not found." });
+    }
+  } catch (error) {
+    console.error("Error retrieving note:", error);
+    return res.status(500).json({ message: "Internal server error." });
+  }
+});
+
+// Retrieve User Details Endpoint
+app.post("/getUserDetails", async (req, res) => {
+  const { user_id, user_role } = req.body;
+
+  // Input validation
+  if (!user_id || !user_role) {
+    return res.status(400).json({ message: "User ID and role are required." });
+  }
+
+  try {
+    // Validate user_role
+    if (user_role !== "student" && user_role !== "ullama") {
+      return res.status(400).json({ message: "Invalid role specified." });
+    }
+
+    // Determine the target table based on the user role
+    const targetTable = user_role === "student" ? "studentuser" : "ulamauser";
+
+    // Query to retrieve user details
+    const userResult = await pool.query(
+      `SELECT name, profileImage 
+       FROM ${targetTable} 
+       WHERE id = $1`,
+      [user_id]
+    );
+
+    if (userResult.rows.length > 0) {
+      // User found
+      console.log("User details retrieved successfully:", userResult.rows[0]);
+      return res.status(200).json({
+        message: "User details retrieved successfully",
+        user: userResult.rows[0],
+      });
+    } else {
+      // User not found
+      return res.status(404).json({ message: "User not found." });
+    }
+  } catch (error) {
+    console.error("Error retrieving user details:", error);
+    return res.status(500).json({ message: "Internal server error." });
+  }
+});
+
 
 // Start the server
 try {
