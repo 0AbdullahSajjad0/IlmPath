@@ -4,11 +4,48 @@ import { globalStyles, width, height, responsiveFontSize, responsiveIconSize } f
 
 function EmailSignIn({ navigation }) { 
 
-    const handleSignInPress = () => {
-    // Handle button press action
-    console.log('Sign In Button Pressed');
-    navigation.replace('HomeTabs');
-    console.log('Navigated to HomeScreen'); 
+    const handleSignInPress = async () => {
+
+        if (!email.trim() || !password.trim()) {
+            alert('Validation Error. Please fill all the fields.');
+            return;
+        }
+
+        const signInData = {
+            email, 
+            password, 
+        };
+
+        console.log('Sign Up Data:', signInData);
+
+        try {
+            // API call
+            console.log("Sending sign up request 1");
+            const response = await fetch("http://192.168.100.75:5000/signin", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(signInData),
+            });
+            console.log("Sending sign up request 2");
+            // Handle response
+            const result = await response.json();
+            if (response.ok) {
+              console.log("Sign in successful:", result);
+              alert("Success", "Sign in Successful");
+              navigation.replace("HomeTabs", { user: result.user }); // Navigate to HomeTabs
+            } else {
+              console.error("Sign in failed:", result);
+              alert("Error", result.message || "Sign In Failed");
+            }
+          } catch (error) {
+            console.error("Error during sign in:", error);
+            alert("Error", "An unexpected error occurred. Please try again.");
+          }
+
+        // Handle button press action
+        //console.log('Sign In Button Pressed');
+        //navigation.replace('HomeTabs');
+        //console.log('Navigated to HomeScreen'); 
     };
 
     const handleGooglePress = () => {
@@ -23,6 +60,9 @@ function EmailSignIn({ navigation }) {
     console.log('Navigated to EmailSignUp'); 
     };
 
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');  
+    const [secureText, setSecureText] = useState(true); 
     const [toggleCheckBox, setToggleCheckBox] = useState(false);
 
     return (
@@ -62,6 +102,8 @@ function EmailSignIn({ navigation }) {
                     placeholderTextColor="#A9A9A9"
                     keyboardType="email-address"
                     autoCapitalize="none"
+                    value={email}
+                    onChangeText={(text) => setEmail(text)} // Update state on change
                 />
                 
             </View>
@@ -80,16 +122,21 @@ function EmailSignIn({ navigation }) {
                     placeholderTextColor="#A9A9A9"
                     keyboardType="default"
                     autoCapitalize="none"
-                    secureTextEntry={true}
+                    secureTextEntry={secureText}
+                    value={password} 
+                    onChangeText={(text) => setPassword(text)} // Update state on change
                 />
-                <View style={globalStyles.rightIconWrapper}>
+                <TouchableOpacity
+                        style={globalStyles.rightIconWrapper}
+                        onPress={() => setSecureText(!secureText)} // Toggle secureText state
+                >
                     <View style={globalStyles.iconContainer}>
                         <Image
-                        source={require('../assets/images/hide_pass.png')}
-                        style={globalStyles.icon}
+                            source={require('../assets/images/hide_pass.png')}
+                            style={globalStyles.icon}
                         />
                     </View>
-                </View>
+                </TouchableOpacity>
             </View>
 
             {/* Remember Me and Forgot Password */}

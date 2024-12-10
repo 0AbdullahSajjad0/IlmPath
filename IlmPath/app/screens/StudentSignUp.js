@@ -5,12 +5,68 @@ import DateTimePicker from '@react-native-community/datetimepicker'; // Import D
 import DropDownPicker from 'react-native-dropdown-picker';
 import IntlPhoneInput from 'react-native-international-phone-number';
 
-function StudentSignUp({ navigation }) {
-    const handleSignUpPress = () => {
+function StudentSignUp({ navigation, route }) {
+
+    const { email, password } = route.params;
+    //console.log('Email:', email);
+    //console.log('Password:', password);
+
+    const handleSignUpPress = async () => {
+
+        if (!fullName.trim() || !nickName.trim() || !dob || !inputValue.trim() || !value) {
+            alert('Validation Error. Please fill all the fields.');
+            return;
+        }
+
         // Handle button press action
-    console.log('HomeTabs Button Pressed');
-    navigation.replace('HomeTabs');
-    console.log('Navigated to HomeTabs');
+        // console.log('Email: ', email);
+        // console.log('Password', password);
+        // console.log('Full Name:', fullName);
+        // console.log('Nick Name:', nickName);
+        // console.log('Date of Birth:', dob);
+        // console.log('Phone Number:', inputValue);
+        // console.log('Gender:', value);
+
+        const signUpData = {
+            email, // Passed from route params
+            password, // Passed from route params
+            role: "student", // Example role, update based on selection
+            name: fullName,
+            nickName,
+            dob,
+            phoneNo: selectedCountry.callingCode + inputValue,
+            gender: value,
+        };
+
+        console.log('Sign Up Data:', signUpData);
+
+        try {
+            // API call
+            console.log("Sending sign up request 1");
+            const response = await fetch("http://192.168.100.75:5000/signup", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(signUpData),
+            });
+            console.log("Sending sign up request 2");
+            // Handle response
+            const result = await response.json();
+            if (response.ok) {
+              console.log("Sign up successful:", result);
+              alert("Success", "Sign Up Successful");
+              navigation.replace("HomeTabs", { user: result.user }); // Navigate to HomeTabs
+            } else {
+              console.error("Sign up failed:", result);
+              alert("Error", result.message || "Sign Up Failed");
+            }
+          } catch (error) {
+            console.error("Error during sign up:", error);
+            alert("Error", "An unexpected error occurred. Please try again.");
+          }
+
+        console.log('HomeTabs Button Pressed');
+        navigation.replace('HomeTabs');
+        console.log('Navigated to HomeTabs');
     };
 
     const handleGooglePress = () => {
@@ -25,6 +81,8 @@ function StudentSignUp({ navigation }) {
     console.log('Navigated to EmailSignIn');
     };
 
+    const [fullName, setFullName] = useState('');
+    const [nickName, setNickName] = useState('');
     const [selectedCountry, setSelectedCountry] = useState(null);
     const [inputValue, setInputValue] = useState('');
 
@@ -121,6 +179,8 @@ function StudentSignUp({ navigation }) {
                         placeholderTextColor="#A9A9A9"
                         keyboardType="default"
                         autoCapitalize="none"
+                        value={fullName}
+                        onChangeText={setFullName}
                     />
                     
                 </View>
@@ -131,6 +191,8 @@ function StudentSignUp({ navigation }) {
                         placeholderTextColor="#A9A9A9"
                         keyboardType="default"
                         autoCapitalize="none"
+                        value={nickName}
+                        onChangeText={setNickName}
                     />
                 </View>
 
@@ -183,8 +245,8 @@ function StudentSignUp({ navigation }) {
                         onChangePhoneNumber={handleInputValue}
                         selectedCountry={selectedCountry}
                         onChangeSelectedCountry={handleSelectedCountry}
-                        defaultCountry="US" // Set default country
-                        defaultValue="+12505550199"
+                        defaultCountry="PK" // Set default country
+                        defaultValue=""
                         phoneInputStyles={{
                             container: {
                               flex: 1,
@@ -213,7 +275,7 @@ function StudentSignUp({ navigation }) {
                             callingCode: {
                               fontSize: responsiveFontSize(15),
                               color: 'black',
-                              marginLeft: responsiveNegativeMargin(-15),
+                              marginLeft: responsiveNegativeMargin(-20),
                             },
                             input: {
                               flex: 1,

@@ -7,19 +7,27 @@ import { TouchableWithoutFeedback, Keyboard } from 'react-native';
 
 function SignUpScreen({ navigation }) {
         const handleSignUpPress = () => {
-        // Handle button press action
-        if(value == 'student'){
-            console.log('Student Role Selected');
-            console.log('Sign Up Button Pressed');
-            navigation.navigate('StudentSignUp');
-            console.log('Navigated to StudentSignUp');
-        }
-        else if(value == 'ullama'){
-            console.log('Ullama Role Selected');
-            console.log('Sign Up Button Pressed');
-            navigation.navigate('UllamaSignUp');
-            console.log('Navigated to UllamaSignUp');
-        }
+            if(toggleCheckBox == false){
+                console.log('Please agree to terms & conditions.');
+                alert('Please agree to terms & conditions before signing up.');
+            }
+            // Handle button press action
+            else if(value == 'student'){
+                console.log('Student Role Selected');
+                console.log('Sign Up Button Pressed');
+                navigation.navigate('StudentSignUp', { email: email, password: password });
+                console.log('Navigated to StudentSignUp');
+            }
+            else if(value == 'ullama'){
+                console.log('Ullama Role Selected');
+                console.log('Sign Up Button Pressed');
+                navigation.navigate('UllamaSignUp', { email: email, password: password });
+                console.log('Navigated to UllamaSignUp');
+            }
+            else {
+                console.log('Please select a role.');
+                alert('Please select a role before signing up.');
+            }
         };
     
         const handleGooglePress = () => {
@@ -35,8 +43,11 @@ function SignUpScreen({ navigation }) {
         console.log('Navigated to EmailSignIn');
         };
     
+        const [email, setEmail] = useState('');
+        const [password, setPassword] = useState('');  
+        const [secureText, setSecureText] = useState(true); 
         const [toggleCheckBox, setToggleCheckBox] = useState(false);
-    
+        
         // State for DropDownPicker
         const [open, setOpen] = useState(false); // Controls dropdown visibility
         const [value, setValue] = useState(null); // Holds the selected value
@@ -88,6 +99,8 @@ function SignUpScreen({ navigation }) {
                         placeholderTextColor="#A9A9A9"
                         keyboardType="email-address"
                         autoCapitalize="none"
+                        value={email}
+                        onChangeText={(text) => setEmail(text)} // Update state on change
                     />
                     
                 </View>
@@ -106,16 +119,21 @@ function SignUpScreen({ navigation }) {
                         placeholderTextColor="#A9A9A9"
                         keyboardType="default"
                         autoCapitalize="none"
-                        secureTextEntry={true}
+                        secureTextEntry={secureText}
+                        value={password} 
+                        onChangeText={(text) => setPassword(text)} // Update state on change
                     />
-                    <View style={globalStyles.rightIconWrapper}>
+                    <TouchableOpacity
+                        style={globalStyles.rightIconWrapper}
+                        onPress={() => setSecureText(!secureText)} // Toggle secureText state
+                    >
                         <View style={globalStyles.iconContainer}>
                             <Image
-                            source={require('../assets/images/hide_pass.png')}
-                            style={globalStyles.icon}
+                                source={require('../assets/images/hide_pass.png')}
+                                style={globalStyles.icon}
                             />
                         </View>
-                    </View>
+                    </TouchableOpacity>
                 </View>
 
                 {/* Role */}
