@@ -3,14 +3,26 @@ import { View, Text, TextInput, Image, ImageBackground, TouchableOpacity, Scroll
 import { Svg, Path } from 'react-native-svg';
 import { width, height, responsiveIconSize, responsiveMargin, responsiveFontSize, ProfileBox, globalStyles } from '../styles/globalStyles';
 import QuranData from '../assets/data/QuranDataInJson.json';
+import { fetchAllUlama } from '../services/ullamaService';
 
 export default function UllamaList({ navigation }) {
-    const handleUllamaDescriptionPress = () => {
-        // Handle button press action
-        console.log('View More Button Pressed');
-        navigation.navigate('UllamaDescription');
-        console.log('Navigated to All Surah List'); 
+
+    const [ulamaList, setUlamaList] = useState([]); // State to store Ulama data
+
+    const handleUllamaDescriptionPress = (ulama) => {
+      // Navigate to the description screen with selected Ulama details
+      console.log('Ullama selected:', ulama);
+      navigation.navigate('UllamaDescription', { ulama: ulama });
     };
+
+    useEffect(() => {
+      const getUlamaList = async () => {
+        const fetchedUlama = await fetchAllUlama();
+        setUlamaList(fetchedUlama);
+      };
+  
+      getUlamaList();
+    }, []);
 
     return (
         <View style={[globalStyles.container, {backgroundColor: '#F0DEAE'}]}>
@@ -31,19 +43,16 @@ export default function UllamaList({ navigation }) {
               showsVerticalScrollIndicator={false}
             >
                 
-                {/* Ullama Profile Boxes */}
+              {/* Ulama Profile Boxes */}
+              {ulamaList.map((ulama, index) => (
                 <ProfileBox
-                    name="John Doe"
-                    expertise="Software Engineer"
-                    picture={require('../assets/images/Set_Picture.png')} // Replace with the actual image path
-                    onPress={handleUllamaDescriptionPress}
+                  key={index}
+                  name={ulama.name}
+                  expertise={ulama.expertise}
+                  picture={ulama.profileImage || require('../assets/images/Set_Picture.png')} // Use default image if none is provided
+                  onPress={() => handleUllamaDescriptionPress(ulama)}
                 />
-                <ProfileBox
-                    name="Jane Smith"
-                    expertise="UI/UX Designer"
-                    picture={require('../assets/images/Set_Picture.png')} // Replace with the actual image path
-                    onPress={handleUllamaDescriptionPress}
-                />
+              ))}
     
             </ScrollView>
     

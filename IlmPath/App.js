@@ -4,6 +4,7 @@ import { UserProvider } from './context/UserContext';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { StripeProvider } from '@stripe/stripe-react-native'; 
 import { Asset } from 'expo-asset';
 import { useFonts } from 'expo-font';
 
@@ -70,6 +71,7 @@ export default function App() {
   }
 
   return (
+    <StripeProvider publishableKey="pk_test_51QUaXvLPk2ToxWUBho0AzIHu39CaDs0oUqJBRQGySGnq2ZtlOqjMbE2d7s4hmh0lW3riGUFrMEzZBPOp2QAjc46K00RlxUAJjb"> {/* Wrap with StripeProvider */}
     <UserProvider>
       <NavigationContainer>
         <Stack.Navigator screenOptions={{ headerShown: false }}>
@@ -91,5 +93,6 @@ export default function App() {
         </Stack.Navigator>
       </NavigationContainer>
     </UserProvider>
+    </StripeProvider>
   );
 }

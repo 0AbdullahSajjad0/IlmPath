@@ -4,16 +4,41 @@ import { width, height, responsiveMargin, responsiveFontSize, responsiveIconSize
 import { ProgressBar } from 'react-native-paper'; // Import ProgressBar from react-native-paper
 import * as SecureStore from "expo-secure-store"; // Import SecureStore
 import { useUser } from '../../context/UserContext';
+import { getProgress } from '../services/progressService';
+import { getUserDetails } from '../services/profileService';
+import { useFocusEffect } from '@react-navigation/native';
 
 const QuranData = require('../assets/data/QuranDataInJson.json');
 
 export default function HomeScreen({ navigation }) {
   const { user } = useUser();
-  
+  const [userName, setUserName] = useState('Guest');
+  const [profileImage, setProfileImage] = useState(null);
   //const [userId, setUserId] = useState(null);
   //const [role, setRole] = useState(null);
   const [surahData, setSurahData] = useState([]);
-  const [completedAyahs, setCompletedAyahs] = useState(5);
+  const [completedAyahs, setCompletedAyahs] = useState(0);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      const fetchProgress = async () => {
+        try {
+          if (user && user.id && user.role) {
+            console.log('Fetching progress for user:', user.id, user.role);
+            const progress = await getProgress({ user_id: user.id, role: user.role });
+            setCompletedAyahs(progress); // Update state with progress
+            console.log('Fetched completed Ayahs:', progress);
+          }
+        } catch (error) {
+          console.error('Error fetching user progress:', error.message);
+        }
+      };
+  
+      if (user && user.id && user.role) {
+        fetchProgress();
+      }
+    }, [user]) // Dependencies: Re-run only when `user` changes
+  );
 
   useEffect(() => {
     // Create a Map to store unique surahs
@@ -27,16 +52,6 @@ export default function HomeScreen({ navigation }) {
     //   console.log("Retrieved user role:", storedRole);
     // }
 
-    if (user && user.id && user.role) {
-      console.log('User ID:', user.id);
-      console.log('User Role:', user.role);
-    } else {
-      console.log('No user data found.');
-    }
-
-    // console.log("Fetching user ID...");
-    // fetchUserId();
-    // console.log("User ID fetched successfully.");
 
     const surahMap = new Map();
   
@@ -54,6 +69,20 @@ export default function HomeScreen({ navigation }) {
   
     // Update the state with the unique surahs
     setSurahData(firstFiveSurahs);
+
+    const fetchUserDetails = async () => {
+      if (user && user.id && user.role) {
+        const userDetails = await getUserDetails(user.id, user.role);
+        if (userDetails) {
+          const firstName = userDetails.name.split(' ')[0];
+          setUserName(firstName || 'Guest');
+          setProfileImage(userDetails.profileImage || null);
+        }
+      }
+    };
+
+    fetchUserDetails();
+
   }, []);
   
   const handleViewMorePress = () => {
@@ -71,6 +100,8 @@ export default function HomeScreen({ navigation }) {
   }
 
   const progress = Math.min(parseFloat((completedAyahs / 6236).toFixed(2)), 1);
+  const progForText = completedAyahs / 6236;
+  console.log("Progress value: ", ((completedAyahs / 6236) * 100).toFixed(2));
   console.log("Progress value (type-checked):", typeof progress, progress); // Should log 'number'
 
 
@@ -83,12 +114,12 @@ export default function HomeScreen({ navigation }) {
         {/* Welcome Message */}
         <View style={styles.rowContainer}>
           <View style={[globalStyles.loginTextContainer, styles.loginTextContainer]}>
-              <Text style={[globalStyles.text, {marginBottom:0}]}>Hi, Guest</Text>
+              <Text style={[globalStyles.text, {marginBottom:0}]}>Hi, {userName}</Text>
               <Text style={{fontSize: responsiveFontSize(12)}}>Let's start learning</Text>
           </View>
           <View style={styles.profilePicture}>
               <Image
-                  source={require('../assets/images/Set_Picture.png')} // Replace with your default profile picture path
+                  source={profileImage ? { uri: profileImage } : require('../assets/images/Set_Picture.png')} // Replace with your default profile picture path
                   style={globalStyles.profileImage}
               />
           </View>
@@ -100,8 +131,11 @@ export default function HomeScreen({ navigation }) {
             <View>
             <Text style={styles.learningText}>Learned today</Text>
             <View style={{flexDirection:'row', alignItems:'center'}}>
-              <Text style={[styles.progressText,{fontSize: responsiveFontSize(20)}]}>46min</Text>
-              <Text style={styles.progressText}> / 60min</Text>
+              {/*<Text style={[styles.progressText,{fontSize: responsiveFontSize(20)}]}>46min</Text>
+              <Text style={styles.progressText}> / 60min</Text>*/}
+              <Text style={[styles.progressText, { fontSize: responsiveFontSize(20) }]}>
+                  {((progForText || 0) * 100).toFixed(2)}%
+              </Text>
             </View>
             </View>
             <TouchableOpacity style={styles.progressButton} onPress={handleContinueButton}>

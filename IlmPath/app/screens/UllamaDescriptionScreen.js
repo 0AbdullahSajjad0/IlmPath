@@ -4,11 +4,13 @@ import { LinearGradient } from 'expo-linear-gradient'; // Import from expo-linea
 import {Svg, Path} from 'react-native-svg';
 import React from 'react'
 
-export default function UllamaDescriptionScreen({ navigation }) {
+export default function UllamaDescriptionScreen({ navigation, route }) {
 
+  const { ulama } = route.params; // Get the passed 
+  
   const handleBookAppointment = () =>{
     console.log('Process Button Pressed');
-    //navigation.navigate('BookAppointment');
+    navigation.navigate('BookAppointment');
     console.log('Navigated to Book Appointment Screen'); 
   }
 
@@ -33,8 +35,8 @@ export default function UllamaDescriptionScreen({ navigation }) {
                     style={styles.profileImage}
                 />
             </View>
-            <Text style={styles.doctorName}>Abdul Qadir</Text>
-            <Text style={styles.specialty}>Mufti</Text>
+            <Text style={styles.doctorName}>{ulama.name}</Text>
+            <Text style={styles.specialty}>{ulama.expertise}</Text>
         </View>
 
         {/* Stats Section */}
@@ -74,7 +76,7 @@ export default function UllamaDescriptionScreen({ navigation }) {
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>About Ullama</Text>
         <Text style={styles.sectionContent}>
-          Dr. Bellamy Nicholas is a top specialist at London Bridge Hospital at London. He has achieved several awards and recognition for his contribution and service in his own field. He is available for private consultation.
+          {ulama.name} is a top scholar at Pakistan. He has achieved several awards and recognition for his contribution and service in his own field. He is available for private consultation.
         </Text>
       </View>
 

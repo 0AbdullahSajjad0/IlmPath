@@ -3,8 +3,11 @@ import { View, Text, TextInput, Image, ImageBackground, TouchableOpacity, Scroll
 import { Svg, Path } from 'react-native-svg';
 import { width, height, responsiveIconSize, responsiveMargin, responsiveFontSize, BookmarkIcon, PlayIcon, NoteIcon, globalStyles } from '../styles/globalStyles';
 import QuranData from '../assets/data/QuranDataInJson.json';
+import { useUser } from '../../context/UserContext';
+import { trackProgress } from '../services/progressService';
+import { fetchNote, saveNote } from '../services/noteService';
 
-const RowWithAyah = ({ number, arabicText, englishText }) => {
+const RowWithAyah = ({ number, arabicText, englishText, user, surahId, incrementedAyahs, setIncrementedAyahs  }) => {
     const [activeIcon, setActiveIcon] = useState(null); // Local state for active icon
     const [isTextAreaVisible, setTextAreaVisible] = useState(false); // State to toggle text area
     const [note, setNote] = useState(''); // State to track user input
@@ -15,9 +18,40 @@ const RowWithAyah = ({ number, arabicText, englishText }) => {
         bookmark: <BookmarkIcon/>, // note_button
       };
 
-      const handleIconPress = (icon) => {
+      const handleIconPress = async (icon) => {
         if (icon === 'note') {
+
+          if (!isTextAreaVisible) {
+            // When making the text area visible, fetch the note
+            const fetchedNote = await fetchNote(user, surahId, number);
+            setNote(fetchedNote); // Populate the text area with the retrieved note
+          } else {
+            // When hiding the text area, save the note
+            if (note.trim() !== '') {
+              const success = await saveNote(user, surahId, number, note);
+              if (success) {
+                console.log('Note saved successfully!');
+              } else {
+                console.error('Failed to save the note.');
+              }
+            }
+          }
+
           setTextAreaVisible((prev) => !prev); // Toggle text area visibility
+        }
+        if (icon === 'play') {
+          if (!incrementedAyahs[number]) {
+            // If progress for this Ayah hasn't been incremented
+            try {
+              await trackProgress({ user_id: user.id, role: user.role });
+              setIncrementedAyahs((prev) => ({ ...prev, [number]: true })); // Mark this Ayah as incremented
+              console.log(`Progress incremented for Ayah ${number}`);
+            } catch (error) {
+              console.error('Error incrementing progress:', error);
+            }
+          } else {
+            console.log(`Progress for Ayah ${number} has already been incremented.`);
+          }
         }
         if (activeIcon === icon) {
           setActiveIcon(null); // Remove highlight
@@ -102,8 +136,10 @@ const RowWithAyah = ({ number, arabicText, englishText }) => {
     );
   };
 
-export default function DailyRecitationScreen({ route }) {
+export default function DailyRecitationScreen({ navigation, route }) {
+    const { user } = useUser();
     const { completedAyahs } = route.params; // Get the completedAyahs parameter
+    const [incrementedAyahs, setIncrementedAyahs] = useState({}); // Track incremented Ayahs
 
     // Filter QuranData for the next three Ayahs
     const nextThreeAyahs = QuranData.filter(
@@ -138,10 +174,12 @@ export default function DailyRecitationScreen({ route }) {
         {/* Back Button */}
         <View style={globalStyles.headerContainer}>
             <View style={globalStyles.backButtonContainer}>
-                <Image
-                    source={require('../assets/images/Back_Icon.png')}
-                    style={[globalStyles.icon, globalStyles.backIcon]}
-                />
+                <TouchableOpacity onPress={() => navigation.goBack()}>
+                    <Image
+                        source={require('../assets/images/Back_Icon.png')}
+                        style={[globalStyles.icon, globalStyles.backIcon]}
+                    />
+                  </TouchableOpacity>
                 <Text style={[globalStyles.subtitle, globalStyles.backText]}>Daily Recitation</Text>
             </View>
         </View>
@@ -183,6 +221,10 @@ export default function DailyRecitationScreen({ route }) {
                 number={ayah.ayah_no_surah}
                 arabicText={ayah.ayah_ar}
                 englishText={ayah.ayah_en}
+                user={user} // Pass user data here
+                surahId={ayah.surah_no} 
+                incrementedAyahs={incrementedAyahs}
+                setIncrementedAyahs={setIncrementedAyahs}
                 />
             ))}            
 

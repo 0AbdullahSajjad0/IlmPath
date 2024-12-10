@@ -3,8 +3,10 @@ import { View, Text, TextInput, Image, ImageBackground, TouchableOpacity, Scroll
 import { Svg, Path } from 'react-native-svg';
 import { width, height, responsiveIconSize, responsiveMargin, responsiveFontSize, BookmarkIcon, PlayIcon, NoteIcon, globalStyles } from '../styles/globalStyles';
 import QuranData from '../assets/data/QuranDataInJson.json';
+import { useUser } from '../../context/UserContext';
+import { fetchNote, saveNote } from '../services/noteService';
 
-const RowWithAyah = ({ number, arabicText, englishText }) => {
+const RowWithAyah = ({ number, arabicText, englishText, user, surahId }) => {
     const [activeIcon, setActiveIcon] = useState(null); // Local state for active icon
     const [isTextAreaVisible, setTextAreaVisible] = useState(false); // State to toggle text area
     const [note, setNote] = useState(''); // State to track user input
@@ -15,9 +17,27 @@ const RowWithAyah = ({ number, arabicText, englishText }) => {
         bookmark: <BookmarkIcon/>, // note_button
       };
 
-      const handleIconPress = (icon) => {
+      const handleIconPress = async (icon) => {
         if (icon === 'note') {
+
+          if (!isTextAreaVisible) {
+            // When making the text area visible, fetch the note
+            const fetchedNote = await fetchNote(user, surahId, number);
+            setNote(fetchedNote); // Populate the text area with the retrieved note
+          } else {
+            // When hiding the text area, save the note
+            if (note.trim() !== '') {
+              const success = await saveNote(user, surahId, number, note);
+              if (success) {
+                console.log('Note saved successfully!');
+              } else {
+                console.error('Failed to save the note.');
+              }
+            }
+          }
+
           setTextAreaVisible((prev) => !prev); // Toggle text area visibility
+          
         }
         if (activeIcon === icon) {
           setActiveIcon(null); // Remove highlight
@@ -103,6 +123,7 @@ const RowWithAyah = ({ number, arabicText, englishText }) => {
   };
 
 export default function ReadSurah({ route }) {
+  const { user } = useUser();
   const { surahId } = route.params; // Get the passed surahId
   const surahAyahs = QuranData.find((s) => parseInt(s.surah_no) === parseInt(surahId)); // Find the surah
   const surahAyahs2 = QuranData.filter((s) => {
@@ -179,6 +200,8 @@ export default function ReadSurah({ route }) {
                 number={ayah.ayah_no_surah}
                 arabicText={ayah.ayah_ar}
                 englishText={ayah.ayah_en}
+                user={user} // Pass user data here
+                surahId={surahId} 
                 />
             ))}            
 

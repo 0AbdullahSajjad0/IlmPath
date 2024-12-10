@@ -2,6 +2,7 @@ const express = require("express");
 const { Pool } = require("pg");
 const cors = require("cors");
 const multer = require("multer");
+const Stripe = require('stripe');
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
@@ -50,6 +51,7 @@ const storage = multer.diskStorage({
 });
 
 const upload = multer({ storage });
+const stripe = Stripe('sk_test_51QUaXvLPk2ToxWUBhHD5Z3hZRdTgeAlJJFKqo6iDbI8Z9CLDz0xZSwRHLL9TD4SSwR39PcxAxlGybR93CNTzr3qL00UfoCnG1t');
 
 // Test Database Connectivity
 pool.query("SELECT NOW()", (err, res) => {
@@ -420,6 +422,51 @@ app.post("/getUserDetails", async (req, res) => {
   } catch (error) {
     console.error("Error retrieving user details:", error);
     return res.status(500).json({ message: "Internal server error." });
+  }
+});
+
+// Get All Ulama List Endpoint
+app.get("/getAllUlama", async (req, res) => {
+  try {
+    // Query to fetch all Ulama information
+    const ulamaList = await pool.query(
+      `SELECT id, name, expertise, email, DOB, phoneNo, gender, certificateImage, profileImage FROM ulamauser`
+    );
+
+    if (ulamaList.rows.length > 0) {
+      // Return the list of Ulama
+      console.log("Ulama list retrieved successfully:", ulamaList.rows);
+      return res.status(200).json({
+        message: "Ulama list retrieved successfully",
+        ulama: ulamaList.rows,
+      });
+    } else {
+      // No Ulama found
+      return res.status(404).json({ message: "No Ulama found in the database." });
+    }
+  } catch (error) {
+    console.error("Error retrieving Ulama list:", error);
+    return res.status(500).json({ message: "Internal server error." });
+  }
+});
+
+app.post('/create-payment-intent', async (req, res) => {
+  try {
+    const { amount } = req.body; // Amount in cents (e.g., $10 = 1000)
+
+    // Create a PaymentIntent with the specified amount and currency
+    const paymentIntent = await stripe.paymentIntents.create({
+      amount,
+      currency: 'usd',
+      payment_method_types: ['card'],
+    });
+
+    res.status(200).json({
+      clientSecret: paymentIntent.client_secret,
+    });
+  } catch (error) {
+    console.error('Error creating payment intent:', error.message);
+    res.status(500).json({ error: error.message });
   }
 });
 
