@@ -6,7 +6,12 @@ import DropDownPicker from 'react-native-dropdown-picker';
 import IntlPhoneInput from 'react-native-international-phone-number';
 import * as ImagePicker from 'expo-image-picker';
 
-function UllamaSignUp({ navigation }) {
+function UllamaSignUp({ navigation, route }) {
+
+    const { email, password } = route.params;
+    console.log('Email:', email);
+    console.log('Password:', password);
+    
     const handleSignUpPress = () => {
         // Handle button press action
     console.log("Date: " + dob);
