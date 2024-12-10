@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity, TextInput, Dimensions } from 'react-native';
 import { globalStyles, width, height, responsiveFontSize, responsiveIconSize } from '../styles/globalStyles';
+import * as SecureStore from "expo-secure-store";
+import { useUser } from '../../context/UserContext';
+import config from '../../config';
 
 function EmailSignIn({ navigation }) { 
 
@@ -21,7 +24,7 @@ function EmailSignIn({ navigation }) {
         try {
             // API call
             console.log("Sending sign up request 1");
-            const response = await fetch("http://192.168.100.75:5000/signin", {
+            const response = await fetch(`${config.apiBaseUrl}/signin`, {
               method: "POST",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify(signInData),
@@ -31,8 +34,18 @@ function EmailSignIn({ navigation }) {
             const result = await response.json();
             if (response.ok) {
               console.log("Sign in successful:", result);
+              console.log("Result.user is " + result.user);
               alert("Success", "Sign in Successful");
-              navigation.replace("HomeTabs", { user: result.user }); // Navigate to HomeTabs
+
+              console.log("User ID: ", result.user.id.toString());
+              console.log("User Role: ", result.user.role);
+
+              await SecureStore.setItemAsync("userId", result.user.id.toString());
+              await SecureStore.setItemAsync("role", result.user.role);
+              
+              setUser({ id: result.user.id, role: result.user.role });
+              
+              navigation.replace("HomeTabs"); // Navigate to HomeTabs
             } else {
               console.error("Sign in failed:", result);
               alert("Error", result.message || "Sign In Failed");
@@ -62,6 +75,7 @@ function EmailSignIn({ navigation }) {
 
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');  
+    const { setUser } = useUser(); // Access the setter from context
     const [secureText, setSecureText] = useState(true); 
     const [toggleCheckBox, setToggleCheckBox] = useState(false);
 

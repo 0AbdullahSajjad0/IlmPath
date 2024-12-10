@@ -1,9 +1,12 @@
 import React, { useState} from 'react';
 import { View, Text, Image, TouchableOpacity, TextInput, ScrollView, StyleSheet, Platform  } from 'react-native';
 import { globalStyles, responsiveIconSize, responsiveFontSize, responsiveNegativeMargin, responsiveMargin } from '../styles/globalStyles';
+import { useUser } from '../../context/UserContext';
 import DateTimePicker from '@react-native-community/datetimepicker'; // Import DateTimePicker
 import DropDownPicker from 'react-native-dropdown-picker';
 import IntlPhoneInput from 'react-native-international-phone-number';
+import * as SecureStore from "expo-secure-store";
+import config from '../../config';
 
 function StudentSignUp({ navigation, route }) {
 
@@ -43,7 +46,7 @@ function StudentSignUp({ navigation, route }) {
         try {
             // API call
             console.log("Sending sign up request 1");
-            const response = await fetch("http://192.168.100.75:5000/signup", {
+            const response = await fetch(`${config.apiBaseUrl}/signup`, {
               method: "POST",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify(signUpData),
@@ -54,7 +57,12 @@ function StudentSignUp({ navigation, route }) {
             if (response.ok) {
               console.log("Sign up successful:", result);
               alert("Success", "Sign Up Successful");
-              navigation.replace("HomeTabs", { user: result.user }); // Navigate to HomeTabs
+
+              await SecureStore.setItemAsync("userId", result.user.id.toString());
+
+              setUser({ id: result.user.id, role: result.user.role });
+
+              navigation.replace("HomeTabs"); // Navigate to HomeTabs
             } else {
               console.error("Sign up failed:", result);
               alert("Error", result.message || "Sign Up Failed");
@@ -64,9 +72,6 @@ function StudentSignUp({ navigation, route }) {
             alert("Error", "An unexpected error occurred. Please try again.");
           }
 
-        console.log('HomeTabs Button Pressed');
-        navigation.replace('HomeTabs');
-        console.log('Navigated to HomeTabs');
     };
 
     const handleGooglePress = () => {
@@ -81,6 +86,7 @@ function StudentSignUp({ navigation, route }) {
     console.log('Navigated to EmailSignIn');
     };
 
+    const { setUser } = useUser(); // Access the setter from context
     const [fullName, setFullName] = useState('');
     const [nickName, setNickName] = useState('');
     const [selectedCountry, setSelectedCountry] = useState(null);

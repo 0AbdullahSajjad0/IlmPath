@@ -1,6 +1,7 @@
 const express = require("express");
 const { Pool } = require("pg");
 const cors = require("cors");
+const multer = require("multer");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
@@ -37,6 +38,19 @@ try {
   console.error("Error initializing database connection:", err);
 }
 
+
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, "uploads"); // Path inside the container
+  },
+  filename: (req, file, cb) => {
+    cb(null, `${Date.now()}-${file.originalname}`);
+  },
+});
+
+const upload = multer({ storage });
+
 // Test Database Connectivity
 pool.query("SELECT NOW()", (err, res) => {
   if (err) {
@@ -46,12 +60,18 @@ pool.query("SELECT NOW()", (err, res) => {
   }
 });
 
-// Sign Up Endpoint
-app.post("/signup", async (req, res) => {
+// Sign-Up Endpoint
+app.post("/signup", upload.fields([{ name: "profileImage" }, { name: "certificateImage" }]), async (req, res) => {
   try {
-    const { email, password, role, name, nickName, dob, phoneNo, gender } = req.body;
+    const { email, password, role, name, nickName, dob, phoneNo, gender, expertise } = req.body;
 
+    // Log the request body and files
     console.log("Received signup request:", req.body);
+    console.log("Uploaded files:", req.files);
+
+    // Extract uploaded file paths
+    const profileImage = req.files?.profileImage?.[0]?.path || null;
+    const certificateImage = req.files?.certificateImage?.[0]?.path || null;
 
     // Input validation
     if (!email || !password || !role || !name || !dob || !phoneNo || !gender) {
@@ -59,15 +79,32 @@ app.post("/signup", async (req, res) => {
       return res.status(400).json({ message: "All fields are required." });
     }
 
+    // Additional validation for role-specific fields
+    if (role === "ullama" && (!expertise || !certificateImage)) {
+      console.warn("Sign-up validation failed: Missing expertise or certificate image for Ullama.");
+      return res.status(400).json({ message: "Expertise and certificate image are required for Ullama." });
+    }
+    if (role === "student" && !nickName) {
+      console.warn("Sign-up validation failed: Missing nickName for Student.");
+      return res.status(400).json({ message: "Nick Name is required for Student." });
+    }
+
     // Hash the password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Determine the target table
-    let targetTable;
+    // Prepare SQL query and values based on role
+    let targetTable, insertFields, insertValues, placeholders;
+
     if (role === "student") {
       targetTable = "studentuser";
+      insertFields = "(name, nickName, email, password, DOB, phoneNo, gender)"; //, profileImage)";
+      insertValues = [name, nickName, email, hashedPassword, dob, phoneNo, gender]; //, profileImage];
+      placeholders = "$1, $2, $3, $4, $5, $6, $7";                //, $8"; // 8 placeholders
     } else if (role === "ullama") {
       targetTable = "ulamauser";
+      insertFields = "(name, expertise, email, password, DOB, phoneNo, gender, certificateImage)";
+      insertValues = [name, expertise, email, hashedPassword, dob, phoneNo, gender, certificateImage];
+      placeholders = "$1, $2, $3, $4, $5, $6, $7, $8"; // 9 placeholders if add profileImage
     } else {
       console.warn("Invalid role specified:", role);
       return res.status(400).json({ message: "Invalid role specified." });
@@ -75,18 +112,23 @@ app.post("/signup", async (req, res) => {
 
     // Insert the user into the appropriate table
     const result = await pool.query(
-      `INSERT INTO "${targetTable}" (name, nickName, email, password, DOB, phoneNo, gender) 
-       VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id, email`,
-      [name, nickName, email, hashedPassword, dob, phoneNo, gender]
+      `INSERT INTO "${targetTable}" ${insertFields} 
+       VALUES (${placeholders}) RETURNING *`,
+      insertValues
     );
+    // Add the role to the response object
+    const user = { ...result.rows[0], role };
 
-    console.log("User inserted successfully:", result.rows[0]);
-    res.status(201).json({ message: "Sign Up Successful", user: result.rows[0] });
-  } catch (error) {
-    console.error("Error during sign up:", error);
-    res.status(500).json({ message: "Internal server error." });
-  }
+    console.log("User inserted successfully:", user);
+    res.status(201).json({ message: "Sign Up Successful", user });
+    
+    } catch (error) {
+      console.error("Error during sign up:", error);
+      res.status(500).json({ message: "Internal server error." });
+    }
 });
+
+
 
 // Sign In Endpoint
 app.post("/signin", async (req, res) => {

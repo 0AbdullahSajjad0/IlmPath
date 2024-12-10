@@ -2,16 +2,42 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, Image, ScrollView, TouchableOpacity } from 'react-native';
 import { width, height, responsiveMargin, responsiveFontSize, responsiveIconSize, globalStyles, SurahBox } from '../styles/globalStyles';
 import { ProgressBar } from 'react-native-paper'; // Import ProgressBar from react-native-paper
+import * as SecureStore from "expo-secure-store"; // Import SecureStore
+import { useUser } from '../../context/UserContext';
 
 const QuranData = require('../assets/data/QuranDataInJson.json');
 
 export default function HomeScreen({ navigation }) {
+  const { user } = useUser();
   
+  //const [userId, setUserId] = useState(null);
+  //const [role, setRole] = useState(null);
   const [surahData, setSurahData] = useState([]);
   const [completedAyahs, setCompletedAyahs] = useState(5);
 
   useEffect(() => {
     // Create a Map to store unique surahs
+    // const fetchUserId = async () => {
+    //   const storedUserId = await SecureStore.getItemAsync("userId");
+    //   setUserId(storedUserId);
+    //   console.log("Retrieved user ID:", storedUserId);
+
+    //   const storedRole = await SecureStore.getItemAsync("role");
+    //   setRole(storedRole);
+    //   console.log("Retrieved user role:", storedRole);
+    // }
+
+    if (user && user.id && user.role) {
+      console.log('User ID:', user.id);
+      console.log('User Role:', user.role);
+    } else {
+      console.log('No user data found.');
+    }
+
+    // console.log("Fetching user ID...");
+    // fetchUserId();
+    // console.log("User ID fetched successfully.");
+
     const surahMap = new Map();
   
     // Iterate over the QuranData
