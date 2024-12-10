@@ -20,15 +20,14 @@ CREATE TABLE IF NOT EXISTS studentuser (
 CREATE TABLE IF NOT EXISTS ulamauser (
     id SERIAL PRIMARY KEY,              -- Auto-incrementing primary key
     name VARCHAR(255) NOT NULL,         -- Ulama's full name
-    nickName VARCHAR(255),              -- Nickname (optional)
+    expertise TEXT,                      -- Text input for the area of expertise
     email VARCHAR(255) UNIQUE NOT NULL, -- Email address, must be unique
     password VARCHAR(255) NOT NULL,     -- Password
     DOB DATE,                           -- Date of Birth
     phoneNo VARCHAR(15),                -- Phone number
     gender VARCHAR(10),                 -- Gender
-    profileImage TEXT,                  -- URL or base64 string for profile image
-    certificateImage TEXT,              -- URL or base64 string for certificate image
-    expertise TEXT                      -- Text input for the area of expertise
+    certificateImage TEXT,              -- URL or base64 string for certificate image  
+    profileImage TEXT                  -- URL or base64 string for profile image
 );
 
 -- Create the new "progress" table
@@ -39,6 +38,17 @@ CREATE TABLE progress (
     progress INT DEFAULT 0 CHECK (progress >= 0 AND progress <= 6236), -- Progress, must be between 0 and 6236
     PRIMARY KEY (id, user_id)           -- Composite primary key
 );
+
+-- Create "notes" table
+CREATE TABLE IF NOT EXISTS notes (
+    id SERIAL PRIMARY KEY,              -- Auto-incrementing unique identifier
+    user_id INT NOT NULL,               -- User identifier (not a foreign key)
+    user_role VARCHAR(10) NOT NULL,     -- Role to distinguish between student and ulama
+    note_text TEXT NOT NULL,            -- Note content
+    note_surrah INT NOT NULL,           -- Surah number
+    note_ayah INT NOT NULL              -- Ayah number
+);
+
 
 INSERT INTO studentuser (name, nickName, email, password, DOB, phoneNo, gender, profileImage)
 VALUES
