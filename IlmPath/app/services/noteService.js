@@ -20,7 +20,12 @@ export const fetchNote = async (user, surahId, ayahNumber) => {
         console.log("Fetched note successfully:", result.note);
         return result.note;
       } else {
-        console.error("Error fetching note:", result.message);
+        // Log only non-critical information, not errors
+        if (result.message === 'Note not found.') {
+          console.log("No note found for this Ayah.");
+        } else {
+          console.error("Error fetching note:", result.message);
+        }
         return ''; // Return empty string if no note found
       }
     } catch (error) {

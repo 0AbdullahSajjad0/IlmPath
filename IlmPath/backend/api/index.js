@@ -74,7 +74,7 @@ app.post("/signup", upload.fields([{ name: "profileImage" }, { name: "certificat
     // Extract uploaded file paths
     const profileImage = req.files?.profileImage?.[0]?.path || null;
     const certificateImage = req.files?.certificateImage?.[0]?.path || null;
-
+    console.log('Ullama Data:', certificateImage);
     // Input validation
     if (!email || !password || !role || !name || !dob || !phoneNo || !gender) {
       console.warn("Sign-up validation failed: Missing fields.");
@@ -126,6 +126,12 @@ app.post("/signup", upload.fields([{ name: "profileImage" }, { name: "certificat
     
     } catch (error) {
       console.error("Error during sign up:", error);
+
+      // Handle unique constraint violation
+      if (error.code === "23505") {
+        return res.status(409).json({ message: "Email already registered in the system." });
+      }
+
       res.status(500).json({ message: "Internal server error." });
     }
 });
@@ -430,7 +436,9 @@ app.get("/getAllUlama", async (req, res) => {
   try {
     // Query to fetch all Ulama information
     const ulamaList = await pool.query(
-      `SELECT id, name, expertise, email, DOB, phoneNo, gender, certificateImage, profileImage FROM ulamauser`
+      `SELECT id, name, expertise, email, DOB, phoneNo, gender, certificateImage, profileImage, verified 
+       FROM ulamauser 
+       WHERE verified = true`
     );
 
     if (ulamaList.rows.length > 0) {

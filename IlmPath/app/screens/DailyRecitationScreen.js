@@ -19,6 +19,12 @@ const RowWithAyah = ({ number, arabicText, englishText, user, surahId, increment
       };
 
       const handleIconPress = async (icon) => {
+
+        if (!user || !user.id || !user.role) {
+          alert('Please log in to use this feature.');
+          return; // Prevent further execution
+        }
+
         if (icon === 'note') {
 
           if (!isTextAreaVisible) {
@@ -65,7 +71,7 @@ const RowWithAyah = ({ number, arabicText, englishText, user, surahId, increment
               alert('Play clicked!');
               break;
             default:
-              alert('Unknown action');
+              //alert('Unknown action');
           }
         }
       };
@@ -179,7 +185,7 @@ export default function DailyRecitationScreen({ navigation, route }) {
                         source={require('../assets/images/Back_Icon.png')}
                         style={[globalStyles.icon, globalStyles.backIcon]}
                     />
-                  </TouchableOpacity>
+                </TouchableOpacity>
                 <Text style={[globalStyles.subtitle, globalStyles.backText]}>Daily Recitation</Text>
             </View>
         </View>

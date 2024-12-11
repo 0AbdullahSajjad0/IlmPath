@@ -10,7 +10,7 @@ export const fetchAllUlama = async () => {
       });
   
       if (!response.ok) {
-        console.error("Failed to fetch Ulama:", response.statusText);
+        console.log("Failed to fetch Ulama:", response.statusText);
         return [];
       }
   

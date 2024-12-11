@@ -22,9 +22,6 @@ import BookAppointmentScreen from './app/screens/BookAppointmentScreen';
 import BottomTabNavigator from './app/navigation/BottomTabNavigator';
 
 
-
-// Prevent splash from auto-hiding
-//const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
 SplashScreen.preventAutoHideAsync();
 
@@ -71,7 +68,7 @@ export default function App() {
   }
 
   return (
-    <StripeProvider publishableKey="pk_test_51QUaXvLPk2ToxWUBho0AzIHu39CaDs0oUqJBRQGySGnq2ZtlOqjMbE2d7s4hmh0lW3riGUFrMEzZBPOp2QAjc46K00RlxUAJjb"> {/* Wrap with StripeProvider */}
+    <StripeProvider publishableKey="pk_test_51QUaXvLPk2ToxWUBho0AzIHu39CaDs0oUqJBRQGySGnq2ZtlOqjMbE2d7s4hmh0lW3riGUFrMEzZBPOp2QAjc46K00RlxUAJjb"> 
     <UserProvider>
       <NavigationContainer>
         <Stack.Navigator screenOptions={{ headerShown: false }}>

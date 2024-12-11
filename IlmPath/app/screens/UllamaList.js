@@ -30,10 +30,12 @@ export default function UllamaList({ navigation }) {
             {/* Back Button */}
             <View style={globalStyles.headerContainer}>
                 <View style={globalStyles.backButtonContainer}>
-                    <Image
-                        source={require('../assets/images/Back_Icon.png')}
-                        style={[globalStyles.icon, globalStyles.backIcon]}
-                    />
+                    <TouchableOpacity onPress={() => navigation.goBack()}>
+                        <Image
+                            source={require('../assets/images/Back_Icon.png')}
+                            style={[globalStyles.icon, globalStyles.backIcon]}
+                        />
+                    </TouchableOpacity>
                     <Text style={[globalStyles.subtitle, globalStyles.backText]}>Ullama</Text>
                 </View>
             </View>
@@ -44,15 +46,21 @@ export default function UllamaList({ navigation }) {
             >
                 
               {/* Ulama Profile Boxes */}
-              {ulamaList.map((ulama, index) => (
-                <ProfileBox
-                  key={index}
-                  name={ulama.name}
-                  expertise={ulama.expertise}
-                  picture={ulama.profileImage || require('../assets/images/Set_Picture.png')} // Use default image if none is provided
-                  onPress={() => handleUllamaDescriptionPress(ulama)}
-                />
-              ))}
+              {ulamaList.length > 0 ? (
+                ulamaList.map((ulama, index) => (
+                  <ProfileBox
+                    key={index}
+                    name={ulama.name}
+                    expertise={ulama.expertise}
+                    picture={ulama.profileImage || require('../assets/images/Set_Picture.png')} 
+                    onPress={() => handleUllamaDescriptionPress(ulama)}
+                  />
+                ))
+              ) : (
+                <Text style={{ textAlign: "center", marginTop: 20 }}>
+                  No Ulama available at the moment.
+                </Text>
+              )}
     
             </ScrollView>
     

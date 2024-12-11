@@ -7,7 +7,7 @@ import DropDownPicker from 'react-native-dropdown-picker';
 import IntlPhoneInput from 'react-native-international-phone-number';
 import * as SecureStore from "expo-secure-store";
 import * as ImagePicker from 'expo-image-picker';
-import config from '../../config';
+import { signUpUllama } from '../services/authService';
 
 function UllamaSignUp({ navigation, route }) {
 
@@ -22,23 +22,8 @@ function UllamaSignUp({ navigation, route }) {
             return;
         }
 
-        // const signUpData = {
-        //     email, // Passed from route params
-        //     password, // Passed from route params
-        //     role: "ullama", // Example role, update based on selection
-        //     name: fullName,
-        //     expertise,
-        //     dob,
-        //     phoneNo: selectedCountry.callingCode + inputValue,
-        //     gender: value,
-        //     certificateImage: selectedImage,
-        // };
-
-        // console.log('Sign Up Data:', signUpData);
-        console.log('I am here 1');
         const formData = new FormData();
 
-        console.log('I am here 2');
         // Append form fields
         formData.append("email", email); // Passed from route params
         formData.append("password", password); // Passed from route params
@@ -49,50 +34,34 @@ function UllamaSignUp({ navigation, route }) {
         formData.append("phoneNo", selectedCountry.callingCode + inputValue);
         formData.append("gender", value);
 
-        console.log('I am here 3');
+        const sanitizedFullName = fullName.replace(/[^a-zA-Z0-9]/g, ""); // Remove special characters and spaces
         // Append image files
         if (selectedImage) {
-            console.log('I am here 3a');
             formData.append("certificateImage", {
                 uri: selectedImage.uri, // URI of the certificate image
-                name: selectedImage.name || `certificate_${Date.now()}.jpg`, // Optional file name
+                name: selectedImage.name || `certificate_${sanitizedFullName}_${inputValue}_${Date.now()}.jpg`, // Optional file name
                 type: selectedImage.type || "image/jpeg", // Optional file type
             });
-            console.log('I am here 3b');
         }
-        console.log('I am here 4');
-        console.log("FormData being sent:", formData);
 
         try {
-            // API call
-            console.log("Sending sign up request 1");
-            const response = await fetch(`${config.apiBaseUrl}/signup`, {
-                method: "POST",
-                headers: {
-                  Accept: "application/json", // Accept JSON response
-                },
-                body: formData,
-            });
-            console.log("Sending sign up request 2");
-            // Handle response
-            const result = await response.json();
-            if (response.ok) {
-              console.log("Sign up successful:", result);
-              alert("Success", "Sign Up Successful");
+            const result = await signUpUllama(formData);
 
-              await SecureStore.setItemAsync("userId", result.user.id.toString());
-
-              setUser({ id: result.user.id, role: result.user.role });
-
-              navigation.replace("HomeTabs"); // Navigate to HomeTabs
-            } else {
-              console.error("Sign up failed:", result);
-              alert("Error", result.message || "Sign Up Failed");
+            if (!result.success && result.message === "Email already registered in the system.") {
+                // If sign-in fails, show the appropriate message
+                alert(result.message);
+                return;
             }
-          } catch (error) {
-            console.error("Error during sign up:", error);
-            alert("Error", "An unexpected error occurred. Please try again.");
-          }
+
+            console.log('Sign up successful:', result);
+      
+            await SecureStore.setItemAsync('userId', result.user.id.toString());
+      
+            setUser({ id: result.user.id, role: result.user.role });
+            navigation.replace('HomeTabs');
+        } catch (error) {
+        alert(error.message);
+        }
 
     };
 
@@ -195,10 +164,12 @@ function UllamaSignUp({ navigation, route }) {
                 {/* Back Button */}
                 <View style={globalStyles.headerContainer}>
                     <View style={globalStyles.backButtonContainer}>
-                        <Image
-                            source={require('../assets/images/Back_Icon.png')}
-                            style={[globalStyles.icon, globalStyles.backIcon]}
-                        />
+                        <TouchableOpacity onPress={() => navigation.goBack()}>
+                            <Image
+                                source={require('../assets/images/Back_Icon.png')}
+                                style={[globalStyles.icon, globalStyles.backIcon]}
+                            />
+                        </TouchableOpacity>
                         <Text style={[globalStyles.subtitle, globalStyles.backText]}>Fill Your Profile</Text>
                     </View>
                 </View>

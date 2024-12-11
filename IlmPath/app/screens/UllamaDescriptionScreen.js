@@ -21,17 +21,19 @@ export default function UllamaDescriptionScreen({ navigation, route }) {
         {/* Back Button */}
         <View style={globalStyles.headerContainer}>
             <View style={globalStyles.backButtonContainer}>
-                <Image
-                    source={require('../assets/images/Back_Icon.png')}
-                    style={[globalStyles.icon, globalStyles.backIcon]}
-                />
+                <TouchableOpacity onPress={() => navigation.goBack()}>
+                    <Image
+                        source={require('../assets/images/Back_Icon.png')}
+                        style={[globalStyles.icon, globalStyles.backIcon]}
+                    />
+                </TouchableOpacity>
             </View>
         </View>
         {/* Doctor's Image and Name */}
         <View style={styles.header}>
             <View style={styles.profilePicture}>
                 <Image
-                    source={require('../assets/images/Set_Picture.png')} // Replace with your default profile picture path
+                    source={require('../assets/images/Set_Picture.png')} 
                     style={styles.profileImage}
                 />
             </View>

@@ -28,6 +28,7 @@ CREATE TABLE IF NOT EXISTS ulamauser (
     gender VARCHAR(10),                 -- Gender
     certificateImage TEXT,              -- URL or base64 string for certificate image  
     profileImage TEXT                  -- URL or base64 string for profile image
+    verified BOOLEAN DEFAULT false      -- Verification status, default to false
 );
 
 -- Create the new "progress" table

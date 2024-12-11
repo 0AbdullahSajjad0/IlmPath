@@ -94,13 +94,15 @@ export default function BookAppointmentScreen({navigation}) {
         <View style={[globalStyles.container, {backgroundColor: '#F0DEAE'}]}>
         {/* Back Button and Title */}
         <View style={globalStyles.headerContainer}>
-        <View style={globalStyles.backButtonContainer}>
-            <Image
-                source={require('../assets/images/Back_Icon.png')}
-                style={[globalStyles.icon, globalStyles.backIcon]}
-            />
-            <Text style={[globalStyles.subtitle, globalStyles.backText]}>New Appointment</Text>
-        </View>
+          <View style={globalStyles.backButtonContainer}>
+                <TouchableOpacity onPress={() => navigation.goBack()}>
+                    <Image
+                        source={require('../assets/images/Back_Icon.png')}
+                        style={[globalStyles.icon, globalStyles.backIcon]}
+                    />
+                </TouchableOpacity>
+              <Text style={[globalStyles.subtitle, globalStyles.backText]}>New Appointment</Text>
+          </View>
         </View>
         <ScrollView style={styles.container} contentContainerStyle={{ flexGrow: 1 }}>
           

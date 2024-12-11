@@ -10,7 +10,8 @@ export const getProgress = async ({ user_id, role }) => {
   
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to fetch progress.');
+        console.log('Error fetching progress:', errorData.message || 'Unknown error');
+        return 0; // Return 0 as a default value to prevent UI errors
       }
   
       const data = await response.json();

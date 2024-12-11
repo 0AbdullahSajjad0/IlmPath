@@ -93,8 +93,12 @@ export default function HomeScreen({ navigation }) {
   };
 
   const handleContinueButton = () => {
+    if (!user || !user.id || !user.role) {
+      alert("Please log in to continue.");
+      return;
+    }
     // Handle button press action
-    console.log('Continue Button Pressed');
+    console.log(completedAyahs === 0 ? 'Start Button Pressed' : 'Continue Button Pressed');
     navigation.navigate('DailyRecitationScreen', { completedAyahs });
     console.log('Navigated to Daily Recitation Screen');
   }
@@ -139,7 +143,9 @@ export default function HomeScreen({ navigation }) {
             </View>
             </View>
             <TouchableOpacity style={styles.progressButton} onPress={handleContinueButton}>
-              <Text style={styles.progressButtonText}>Continue</Text>
+              <Text style={styles.progressButtonText}>
+                {completedAyahs === 0 ? "Start" : "Continue"}
+              </Text>
             </TouchableOpacity>
           </View>
           

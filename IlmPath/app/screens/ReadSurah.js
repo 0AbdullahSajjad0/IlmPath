@@ -18,12 +18,20 @@ const RowWithAyah = ({ number, arabicText, englishText, user, surahId }) => {
       };
 
       const handleIconPress = async (icon) => {
+
+        if (!user || !user.id || !user.role) {
+          alert('Please log in to use this feature.');
+          return; // Prevent further execution
+        }
+
         if (icon === 'note') {
 
           if (!isTextAreaVisible) {
             // When making the text area visible, fetch the note
             const fetchedNote = await fetchNote(user, surahId, number);
             setNote(fetchedNote); // Populate the text area with the retrieved note
+
+
           } else {
             // When hiding the text area, save the note
             if (note.trim() !== '') {
@@ -51,7 +59,7 @@ const RowWithAyah = ({ number, arabicText, englishText, user, surahId }) => {
               alert('Play clicked!');
               break;
             default:
-              alert('Unknown action');
+              //alert('Unknown action');
           }
         }
       };
@@ -122,7 +130,7 @@ const RowWithAyah = ({ number, arabicText, englishText, user, surahId }) => {
     );
   };
 
-export default function ReadSurah({ route }) {
+export default function ReadSurah({ navigation, route }) {
   const { user } = useUser();
   const { surahId } = route.params; // Get the passed surahId
   const surahAyahs = QuranData.find((s) => parseInt(s.surah_no) === parseInt(surahId)); // Find the surah
@@ -155,10 +163,12 @@ export default function ReadSurah({ route }) {
         {/* Back Button */}
         <View style={globalStyles.headerContainer}>
             <View style={globalStyles.backButtonContainer}>
-                <Image
-                    source={require('../assets/images/Back_Icon.png')}
-                    style={[globalStyles.icon, globalStyles.backIcon]}
-                />
+                <TouchableOpacity onPress={() => navigation.goBack()}>
+                    <Image
+                        source={require('../assets/images/Back_Icon.png')}
+                        style={[globalStyles.icon, globalStyles.backIcon]}
+                    />
+                </TouchableOpacity>
                 <Text style={[globalStyles.subtitle, globalStyles.backText]}>{surahAyahs.surah_name_roman}</Text>
             </View>
         </View>

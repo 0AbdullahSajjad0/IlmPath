@@ -1,9 +1,12 @@
 import React from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
+import { useUser } from '../../context/UserContext';
 
 function LoginOptionsScreen({ navigation }) {
+  const { setUser } = useUser(); // Access the setter from context
 
   const handleGuestPress = () => {
+    setUser({ id: null, role: null });
     console.log('HomeTabs Button Pressed');
     navigation.replace('HomeTabs');
     console.log('Navigated to HomeTabs');
