@@ -19,6 +19,7 @@
     "@stripe/stripe-react-native": "^0.38.6",
     "expo-asset": "^11.0.1",
     "expo-asset-utils": "^3.0.0",
+    "expo-av": "^15.0.1",
     "expo-image-picker": "^16.0.3",
     "expo-linear-gradient": "^14.0.1",
     "expo-secure-store": "^14.0.0",

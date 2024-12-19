@@ -3,9 +3,12 @@ import { View, Text, TextInput, Image, ImageBackground, TouchableOpacity, Scroll
 import { Svg, Path } from 'react-native-svg';
 import { width, height, responsiveIconSize, responsiveMargin, responsiveFontSize, BookmarkIcon, PlayIcon, NoteIcon, globalStyles } from '../styles/globalStyles';
 import QuranData from '../assets/data/QuranDataInJson.json';
+import AudioMapping from '../assets/data/audioMapping.json';
 import { useUser } from '../../context/UserContext';
 import { trackProgress } from '../services/progressService';
 import { fetchNote, saveNote } from '../services/noteService';
+import { Audio } from 'expo-av'; // Import Expo AV for audio playback
+import * as FileSystem from 'expo-file-system';
 
 const RowWithAyah = ({ number, arabicText, englishText, user, surahId, incrementedAyahs, setIncrementedAyahs  }) => {
     const [activeIcon, setActiveIcon] = useState(null); // Local state for active icon
@@ -17,6 +20,34 @@ const RowWithAyah = ({ number, arabicText, englishText, user, surahId, increment
         play: <PlayIcon/>, // play_button
         bookmark: <BookmarkIcon/>, // note_button
       };
+
+      const playAudio = async (surahId, ayahNumber) => {
+        const ayahKey = `${surahId}:${ayahNumber}`;
+        const filePath = AudioMapping[ayahKey];
+    
+        if (!filePath) {
+            console.error(`Audio file not found for key ${ayahKey}`);
+            alert('Audio file not found.');
+            return;
+        }
+    
+        try {
+            const { sound } = await Audio.Sound.createAsync(
+                eval(filePath), // Dynamically resolve the require path
+                { shouldPlay: true }
+            );
+    
+            sound.setOnPlaybackStatusUpdate((status) => {
+                if (status.didJustFinish) {
+                    sound.unloadAsync(); // Unload the sound when playback is done
+                }
+            });
+        } catch (error) {
+            console.error('Error playing audio:', error);
+            alert('Error playing audio.');
+        }
+    };
+    
 
       const handleIconPress = async (icon) => {
 
@@ -46,6 +77,7 @@ const RowWithAyah = ({ number, arabicText, englishText, user, surahId, increment
           setTextAreaVisible((prev) => !prev); // Toggle text area visibility
         }
         if (icon === 'play') {
+          //playAudio(surahId, number);
           if (!incrementedAyahs[number]) {
             // If progress for this Ayah hasn't been incremented
             try {
