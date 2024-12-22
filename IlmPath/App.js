@@ -35,6 +35,8 @@ export default function App() {
     'Atma-Bold': require('./app/assets/fonts/Atma-Bold.ttf'),
     'Atma-Regular': require('./app/assets/fonts/Atma-Regular.ttf'),
     'Jost-SemiBold': require('./app/assets/fonts/Jost-SemiBold.ttf'),
+    'NotoNaskhArabic-Regular': require('./app/assets/fonts/NotoNaskhArabic-Regular.ttf'),
+    'NotoNaskhArabic-Bold': require('./app/assets/fonts/NotoNaskhArabic-Bold.ttf'),
   });
 
   const [dataLoaded] = require('./app/assets/data/QuranDataInJson.json');

@@ -1,14 +1,9 @@
 import React, {useState, useEffect} from 'react';
 import { View, Text, TextInput, Image, ImageBackground, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
-import { Svg, Path } from 'react-native-svg';
 import { width, height, responsiveIconSize, responsiveMargin, responsiveFontSize, BookmarkIcon, PlayIcon, NoteIcon, globalStyles } from '../styles/globalStyles';
 import QuranData from '../assets/data/QuranDataInJson.json';
-import AudioMapping from '../assets/data/audioMapping.json';
 import { useUser } from '../../context/UserContext';
 import { trackProgress } from '../services/progressService';
-import { fetchNote, saveNote } from '../services/noteService';
-import { Audio } from 'expo-av'; // Import Expo AV for audio playback
-import StaticAudioMapping from '../assets/data/StaticAudioMapping';
 import RowWithAyah from '../helpers/RowWithAyah';
 
 export default function DailyRecitationScreen({ navigation, route }) {
@@ -162,6 +157,7 @@ const styles = StyleSheet.create({
   },
   firstAyahArabic: {
     fontSize: 22,
+    fontFamily: 'NotoNaskhArabic-Bold',
     color: 'white',
     textAlign: 'center', // Center the Ayah text
     marginBottom: 10,
