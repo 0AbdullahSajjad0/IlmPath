@@ -1,10 +1,8 @@
 import React, {useState} from 'react';
 import { View, Text, TextInput, Image, ImageBackground, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
-import { Svg, Path } from 'react-native-svg';
 import { width, height, responsiveIconSize, responsiveMargin, responsiveFontSize, BookmarkIcon, PlayIcon, NoteIcon, globalStyles } from '../styles/globalStyles';
 import QuranData from '../assets/data/QuranDataInJson.json';
 import { useUser } from '../../context/UserContext';
-import { fetchNote, saveNote } from '../services/noteService';
 import RowWithAyah from '../helpers/RowWithAyah';
 
 export default function ReadSurah({ navigation, route }) {
@@ -143,6 +141,7 @@ const styles = StyleSheet.create({
   },
   firstAyahArabic: {
     fontSize: 22,
+    fontFamily: 'NotoNaskhArabic-Bold',
     color: 'white',
     textAlign: 'center', // Center the Ayah text
     marginBottom: 10,

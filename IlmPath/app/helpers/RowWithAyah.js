@@ -1,11 +1,6 @@
 import React, {useState, useEffect} from 'react';
 import { View, Text, TextInput, Image, ImageBackground, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
-import { Svg, Path } from 'react-native-svg';
 import { width, height, responsiveIconSize, responsiveMargin, responsiveFontSize, BookmarkIcon, PlayIcon, NoteIcon, globalStyles } from '../styles/globalStyles';
-import QuranData from '../assets/data/QuranDataInJson.json';
-import AudioMapping from '../assets/data/audioMapping.json';
-import { useUser } from '../../context/UserContext';
-import { trackProgress } from '../services/progressService';
 import { fetchNote, saveNote } from '../services/noteService';
 import { Audio } from 'expo-av'; // Import Expo AV for audio playback
 import StaticAudioMapping from '../assets/data/StaticAudioMapping';
@@ -292,6 +287,7 @@ const styles = StyleSheet.create({
       alignSelf: 'flex-end',
       fontSize: responsiveFontSize(18),
       fontWeight: '600',
+      fontFamily:'NotoNaskhArabic-Regular',
       color: 'black', // Darker color for Arabic text
       textAlign: 'center',
       marginBottom: responsiveMargin(20), // Space between Arabic and English text
