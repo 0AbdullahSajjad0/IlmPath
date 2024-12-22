@@ -5,134 +5,12 @@ import { width, height, responsiveIconSize, responsiveMargin, responsiveFontSize
 import QuranData from '../assets/data/QuranDataInJson.json';
 import { useUser } from '../../context/UserContext';
 import { fetchNote, saveNote } from '../services/noteService';
-
-const RowWithAyah = ({ number, arabicText, englishText, user, surahId }) => {
-    const [activeIcon, setActiveIcon] = useState(null); // Local state for active icon
-    const [isTextAreaVisible, setTextAreaVisible] = useState(false); // State to toggle text area
-    const [note, setNote] = useState(''); // State to track user input
-
-    const iconMapping = {
-        note: <NoteIcon/>, //bookmark_button
-        play: <PlayIcon/>, // play_button
-        bookmark: <BookmarkIcon/>, // note_button
-      };
-
-      const handleIconPress = async (icon) => {
-
-        if (!user || !user.id || !user.role) {
-          alert('Please log in to use this feature.');
-          return; // Prevent further execution
-        }
-
-        if (icon === 'note') {
-
-          if (!isTextAreaVisible) {
-            // When making the text area visible, fetch the note
-            const fetchedNote = await fetchNote(user, surahId, number);
-            setNote(fetchedNote); // Populate the text area with the retrieved note
-
-
-          } else {
-            // When hiding the text area, save the note
-            if (note.trim() !== '') {
-              const success = await saveNote(user, surahId, number, note);
-              if (success) {
-                console.log('Note saved successfully!');
-              } else {
-                console.error('Failed to save the note.');
-              }
-            }
-          }
-
-          setTextAreaVisible((prev) => !prev); // Toggle text area visibility
-          
-        }
-        if (activeIcon === icon) {
-          setActiveIcon(null); // Remove highlight
-        } else {
-          setActiveIcon(icon); // Highlight the selected icon
-          switch (icon) {
-            case 'bookmark':
-              alert('Bookmark clicked!');
-              break;
-            case 'play':
-              alert('Play clicked!');
-              break;
-            default:
-              //alert('Unknown action');
-          }
-        }
-      };
-
-    return (
-      <>
-        {/* Row Bar of Icons */}
-        <View style={styles.rowContainer}>
-            {/* Number with Circular Background */}
-            <View style={styles.numberCircle}>
-            <Text style={styles.numberText}>{number}</Text>
-            </View>
-
-            {/* Icons */}
-            <View style={styles.iconsContainer}>
-            
-            <TouchableOpacity
-                style={[
-                styles.iconWrapper,
-                activeIcon === 'note' && styles.activeIconWrapper,
-                ]}
-                onPress={() => handleIconPress('note')}
-            >
-                <NoteIcon />
-            </TouchableOpacity>
-            <TouchableOpacity
-                style={[
-                styles.iconWrapper,
-                activeIcon === 'play' && styles.activeIconWrapper,
-                ]}
-                onPress={() => handleIconPress('play')}
-            >
-                <PlayIcon />
-            </TouchableOpacity>
-            <TouchableOpacity
-                style={[
-                styles.iconWrapper,
-                activeIcon === 'bookmark' && styles.activeIconWrapper,
-                ]}
-                onPress={() => handleIconPress('bookmark')}
-            >
-                <BookmarkIcon filled={activeIcon === 'bookmark'} />
-            </TouchableOpacity>
-            
-            </View>
-        </View>
-  
-        {/* Ayah with Translation */}
-        <View style={styles.ayahContainer}>
-          <Text style={styles.arabicAyahText}>{arabicText}</Text>
-          <Text style={styles.englishAyahText}>{englishText}</Text>
-        </View>
-
-        {/* Text Area */}
-        {isTextAreaVisible && (
-           <TextInput
-           style={styles.textArea}
-           value={note}
-           onChangeText={setNote}
-           placeholder="Add a Note to this Ayah"
-           multiline
-           numberOfLines={4}
-           textAlignVertical="top" // Align text to the top in multiline mode
-         />
-        )}
-
-      </>
-    );
-  };
+import RowWithAyah from '../helpers/RowWithAyah';
 
 export default function ReadSurah({ navigation, route }) {
   const { user } = useUser();
   const { surahId } = route.params; // Get the passed surahId
+  const [currentlyPlayingAyah, setCurrentlyPlayingAyah] = useState(null);
   const surahAyahs = QuranData.find((s) => parseInt(s.surah_no) === parseInt(surahId)); // Find the surah
   const surahAyahs2 = QuranData.filter((s) => {
     if (parseInt(s.surah_no) === parseInt(surahId)) {
@@ -152,10 +30,7 @@ export default function ReadSurah({ navigation, route }) {
     );
   }
 
-  const bismillah = QuranData[0].ayah_ar;
-
-  
-  
+  const bismillah = QuranData[0].ayah_ar;  
 
   return (
     <View style={[globalStyles.container, {backgroundColor: '#F0DEAE'}]}>
@@ -211,7 +86,9 @@ export default function ReadSurah({ navigation, route }) {
                 arabicText={ayah.ayah_ar}
                 englishText={ayah.ayah_en}
                 user={user} // Pass user data here
-                surahId={surahId} 
+                surahId={surahId}
+                currentlyPlayingAyah={currentlyPlayingAyah}
+                setCurrentlyPlayingAyah={setCurrentlyPlayingAyah} 
                 />
             ))}            
 
@@ -269,91 +146,6 @@ const styles = StyleSheet.create({
     color: 'white',
     textAlign: 'center', // Center the Ayah text
     marginBottom: 10,
-  },
-  rowContainer: {
-    width: width/1.15, // Adjust width for two boxes side by side
-    height: height/17,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    backgroundColor: '#EAC98F',  
-    borderRadius: 8,
-    marginVertical: responsiveMargin(20),
-    paddingHorizontal: responsiveMargin(20),
-  },
-  numberCircle: {
-    width: responsiveIconSize(30),
-    height: responsiveIconSize(30),
-    borderRadius: responsiveIconSize(20), // Makes it a circle
-    backgroundColor: '#E0B15E',  
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  numberText: {
-    fontSize: responsiveFontSize(14),
-    color: '#4E240D',
-    fontWeight: 'bold',
-  },
-  iconsContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  iconWrapper: {
-    width: responsiveIconSize(36),
-    height: responsiveIconSize(36),
-    borderRadius: responsiveIconSize(18), // Makes it circular
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  activeIconWrapper: {
-    width: responsiveIconSize(32),
-    height: responsiveIconSize(32),
-    backgroundColor: '#E0B15E', // Highlight background for active icon
-  },
-  iconStyle: {
-    width: responsiveIconSize(20),
-    height: responsiveIconSize(20),
-    resizeMode: 'contain',
-  },
-  ayahContainer: {
-    width: width/1.18, // Adjust width for two boxes side by side
-    borderRadius: 10,
-    shadowColor: '#000', // Shadow for iOS
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2, // Shadow for Android
-    alignItems: 'center', // Center align text
-  },
-  arabicAyahText: {
-    alignSelf: 'flex-end',
-    fontSize: responsiveFontSize(18),
-    fontWeight: '600',
-    color: 'black', // Darker color for Arabic text
-    textAlign: 'center',
-    marginBottom: responsiveMargin(20), // Space between Arabic and English text
-  },
-  englishAyahText: {
-    alignSelf: 'flex-start',
-    fontSize: responsiveFontSize(14),
-    fontWeight: '400',
-    color: 'black', // Lighter color for English text
-  },
-  textArea: {
-    width: width/1.25,
-    height: height/6,
-    backgroundColor: '#EAC98F',
-    borderRadius: 8,
-    padding: 10,
-    margin: responsiveMargin(20),
-    alignSelf: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2, // Shadow for Android
-    fontSize: responsiveFontSize(14),
-    color: '#333',
   },
   
   
