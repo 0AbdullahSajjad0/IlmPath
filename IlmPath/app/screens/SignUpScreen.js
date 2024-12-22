@@ -7,6 +7,34 @@ import { TouchableWithoutFeedback, Keyboard } from 'react-native';
 
 function SignUpScreen({ navigation }) {
         const handleSignUpPress = () => {
+
+            // Email validation
+            if (!email.trim()) { // Check if email is empty or just spaces
+                console.log('Email field is empty');
+                alert('Email field cannot be empty.');
+                return;
+            }
+
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; // Matches any valid email
+            if (!emailRegex.test(email)) {
+                console.log('Invalid email format');
+                alert('Please enter a valid Gmail address.');
+                return;
+            }
+
+            // Password validation
+            if (!password.trim()) { // Check if password is empty or just spaces
+                console.log('Password field is empty');
+                alert('Password field cannot be empty.');
+                return;
+            }
+
+            if (password.length < 8) {
+                console.log('Password is too short');
+                alert('Password must be at least 8 characters long.');
+                return;
+            }
+
             if(toggleCheckBox == false){
                 console.log('Please agree to terms & conditions.');
                 alert('Please agree to terms & conditions before signing up.');

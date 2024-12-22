@@ -2,16 +2,57 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, Image, ScrollView, TouchableOpacity } from 'react-native';
 import { width, height, responsiveMargin, responsiveFontSize, responsiveIconSize, globalStyles, SurahBox } from '../styles/globalStyles';
 import { ProgressBar } from 'react-native-paper'; // Import ProgressBar from react-native-paper
+import * as SecureStore from "expo-secure-store"; // Import SecureStore
+import { useUser } from '../../context/UserContext';
+import { getProgress } from '../services/progressService';
+import { getUserDetails } from '../services/profileService';
+import { useFocusEffect } from '@react-navigation/native';
 
 const QuranData = require('../assets/data/QuranDataInJson.json');
 
 export default function HomeScreen({ navigation }) {
-  
+  const { user } = useUser();
+  const [userName, setUserName] = useState('Guest');
+  const [profileImage, setProfileImage] = useState(null);
+  //const [userId, setUserId] = useState(null);
+  //const [role, setRole] = useState(null);
   const [surahData, setSurahData] = useState([]);
-  const [completedAyahs, setCompletedAyahs] = useState(5);
+  const [completedAyahs, setCompletedAyahs] = useState(0);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      const fetchProgress = async () => {
+        try {
+          if (user && user.id && user.role) {
+            console.log('Fetching progress for user:', user.id, user.role);
+            const progress = await getProgress({ user_id: user.id, role: user.role });
+            setCompletedAyahs(progress); // Update state with progress
+            console.log('Fetched completed Ayahs:', progress);
+          }
+        } catch (error) {
+          console.error('Error fetching user progress:', error.message);
+        }
+      };
+  
+      if (user && user.id && user.role) {
+        fetchProgress();
+      }
+    }, [user]) // Dependencies: Re-run only when `user` changes
+  );
 
   useEffect(() => {
     // Create a Map to store unique surahs
+    // const fetchUserId = async () => {
+    //   const storedUserId = await SecureStore.getItemAsync("userId");
+    //   setUserId(storedUserId);
+    //   console.log("Retrieved user ID:", storedUserId);
+
+    //   const storedRole = await SecureStore.getItemAsync("role");
+    //   setRole(storedRole);
+    //   console.log("Retrieved user role:", storedRole);
+    // }
+
+
     const surahMap = new Map();
   
     // Iterate over the QuranData
@@ -28,6 +69,20 @@ export default function HomeScreen({ navigation }) {
   
     // Update the state with the unique surahs
     setSurahData(firstFiveSurahs);
+
+    const fetchUserDetails = async () => {
+      if (user && user.id && user.role) {
+        const userDetails = await getUserDetails(user.id, user.role);
+        if (userDetails) {
+          const firstName = userDetails.name.split(' ')[0];
+          setUserName(firstName || 'Guest');
+          setProfileImage(userDetails.profileImage || null);
+        }
+      }
+    };
+
+    fetchUserDetails();
+
   }, []);
   
   const handleViewMorePress = () => {
@@ -38,13 +93,19 @@ export default function HomeScreen({ navigation }) {
   };
 
   const handleContinueButton = () => {
+    if (!user || !user.id || !user.role) {
+      alert("Please log in to continue.");
+      return;
+    }
     // Handle button press action
-    console.log('Continue Button Pressed');
+    console.log(completedAyahs === 0 ? 'Start Button Pressed' : 'Continue Button Pressed');
     navigation.navigate('DailyRecitationScreen', { completedAyahs });
     console.log('Navigated to Daily Recitation Screen');
   }
 
   const progress = Math.min(parseFloat((completedAyahs / 6236).toFixed(2)), 1);
+  const progForText = completedAyahs / 6236;
+  console.log("Progress value: ", ((completedAyahs / 6236) * 100).toFixed(2));
   console.log("Progress value (type-checked):", typeof progress, progress); // Should log 'number'
 
 
@@ -57,12 +118,12 @@ export default function HomeScreen({ navigation }) {
         {/* Welcome Message */}
         <View style={styles.rowContainer}>
           <View style={[globalStyles.loginTextContainer, styles.loginTextContainer]}>
-              <Text style={[globalStyles.text, {marginBottom:0}]}>Hi, Guest</Text>
+              <Text style={[globalStyles.text, {marginBottom:0}]}>Hi, {userName}</Text>
               <Text style={{fontSize: responsiveFontSize(12)}}>Let's start learning</Text>
           </View>
           <View style={styles.profilePicture}>
               <Image
-                  source={require('../assets/images/Set_Picture.png')} // Replace with your default profile picture path
+                  source={profileImage ? { uri: profileImage } : require('../assets/images/Set_Picture.png')} // Replace with your default profile picture path
                   style={globalStyles.profileImage}
               />
           </View>
@@ -74,12 +135,17 @@ export default function HomeScreen({ navigation }) {
             <View>
             <Text style={styles.learningText}>Learned today</Text>
             <View style={{flexDirection:'row', alignItems:'center'}}>
-              <Text style={[styles.progressText,{fontSize: responsiveFontSize(20)}]}>46min</Text>
-              <Text style={styles.progressText}> / 60min</Text>
+              {/*<Text style={[styles.progressText,{fontSize: responsiveFontSize(20)}]}>46min</Text>
+              <Text style={styles.progressText}> / 60min</Text>*/}
+              <Text style={[styles.progressText, { fontSize: responsiveFontSize(20) }]}>
+                  {((progForText || 0) * 100).toFixed(2)}%
+              </Text>
             </View>
             </View>
             <TouchableOpacity style={styles.progressButton} onPress={handleContinueButton}>
-              <Text style={styles.progressButtonText}>Continue</Text>
+              <Text style={styles.progressButtonText}>
+                {completedAyahs === 0 ? "Start" : "Continue"}
+              </Text>
             </TouchableOpacity>
           </View>
           

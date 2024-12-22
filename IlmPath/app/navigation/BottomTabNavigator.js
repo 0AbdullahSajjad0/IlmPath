@@ -5,6 +5,7 @@ import {responsiveFontSize, responsiveMargin} from '../styles/globalStyles';
 import HomeScreen from '../screens/HomeScreen';
 import SessionsScreen from '../screens/SessionsScreen';
 import { Svg, Path } from 'react-native-svg';
+import { useUser } from '../../context/UserContext';
 
 const HomeIcon = ({ focused }) => (
   <Svg width="24" height="24" viewBox="0 0 24 24" fill="none">
@@ -74,6 +75,7 @@ export default function BottomTabNavigator() {
           backgroundColor: '#E0B15E',
         },
         headerShown: false, // Hide header for bottom tab screens
+        
       })}
     >
       <Tab.Screen name="Home" component={HomeScreen} />

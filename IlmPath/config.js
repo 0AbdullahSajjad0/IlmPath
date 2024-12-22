@@ -6,7 +6,7 @@ const config = {
     password: "mypassword", // PostgreSQL password (from docker-compose.yml)
     port: 5432,             // PostgreSQL port (default)
   },
-  apiBaseUrl: "http://192.168.1.7:5000", // API Base URL for the frontend
+  apiBaseUrl: "http://192.168.100.75:5000", // API Base URL for the frontend
 };
 
 export default config;

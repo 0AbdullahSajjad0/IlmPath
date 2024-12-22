@@ -3,6 +3,8 @@ import { width, height, responsiveIconSize, responsiveMargin, responsiveFontSize
 import { LinearGradient } from 'expo-linear-gradient'; // Import from expo-linear-gradient
 import {Svg, Path} from 'react-native-svg';
 import {React, useState} from 'react'
+import { useStripe } from '@stripe/stripe-react-native';
+import { fetchPaymentIntentClientSecret } from '../services/ullamaService';
 
 const getCurrentWeekDates = () => {
     const today = new Date();
@@ -28,6 +30,8 @@ const getCurrentWeekDates = () => {
 
 export default function BookAppointmentScreen({navigation}) {
 
+    const { initPaymentSheet, presentPaymentSheet } = useStripe();
+    const [loading, setLoading] = useState(false);
     const [selectedDate, setSelectedDate] = useState(14); // Example selected date
     const [selectedTime, setSelectedTime] = useState(''); // Example selected time
     const currentWeekDates = getCurrentWeekDates();
@@ -45,6 +49,40 @@ export default function BookAppointmentScreen({navigation}) {
       '04:30 PM',
       '05:00 PM',
     ];
+  
+    const openPaymentSheet = async () => {
+      setLoading(true);
+    
+      const clientSecret = await fetchPaymentIntentClientSecret();
+    
+      if (!clientSecret) {
+        alert('Unable to fetch client secret.');
+        setLoading(false);
+        return;
+      }
+    
+      const { error: initError } = await initPaymentSheet({
+        paymentIntentClientSecret: clientSecret,
+      });
+    
+      if (initError) {
+        console.error('Error initializing PaymentSheet:', initError.message);
+        alert('Failed to initialize payment sheet.');
+        setLoading(false);
+        return;
+      }
+    
+      const { error: presentError } = await presentPaymentSheet();
+    
+      setLoading(false);
+    
+      if (presentError) {
+        alert(`Payment failed: ${presentError.message}`);
+      } else {
+        alert('Payment succeeded!');
+        //navigation.navigate('PaymentOptions'); // Navigate after successful payment
+      }
+    };
 
     const handleSetAppointment = () => {
         console.log('Set Appointment Button Pressed');
@@ -56,13 +94,15 @@ export default function BookAppointmentScreen({navigation}) {
         <View style={[globalStyles.container, {backgroundColor: '#F0DEAE'}]}>
         {/* Back Button and Title */}
         <View style={globalStyles.headerContainer}>
-        <View style={globalStyles.backButtonContainer}>
-            <Image
-                source={require('../assets/images/Back_Icon.png')}
-                style={[globalStyles.icon, globalStyles.backIcon]}
-            />
-            <Text style={[globalStyles.subtitle, globalStyles.backText]}>New Appointment</Text>
-        </View>
+          <View style={globalStyles.backButtonContainer}>
+                <TouchableOpacity onPress={() => navigation.goBack()}>
+                    <Image
+                        source={require('../assets/images/Back_Icon.png')}
+                        style={[globalStyles.icon, globalStyles.backIcon]}
+                    />
+                </TouchableOpacity>
+              <Text style={[globalStyles.subtitle, globalStyles.backText]}>New Appointment</Text>
+          </View>
         </View>
         <ScrollView style={styles.container} contentContainerStyle={{ flexGrow: 1 }}>
           
@@ -154,8 +194,8 @@ export default function BookAppointmentScreen({navigation}) {
           />
     
           {/* Set Appointment Button */}
-          <TouchableOpacity style={styles.appointmentButton} onPress={handleSetAppointment}>
-            <Text style={styles.appointmentButtonText}>Set Appointment</Text>
+          <TouchableOpacity style={styles.appointmentButton} onPress={openPaymentSheet} disabled={loading}>
+            <Text style={styles.appointmentButtonText}>{loading ? 'Processing...' : 'Set Appointment'}</Text>
           </TouchableOpacity>
         </ScrollView>
         </View>

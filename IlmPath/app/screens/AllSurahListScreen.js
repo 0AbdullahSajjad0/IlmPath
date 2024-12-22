@@ -33,10 +33,12 @@ export default function AllSurahListScreen({ navigation }) {
         {/* Back Button */}
         <View style={globalStyles.headerContainer}>
             <View style={globalStyles.backButtonContainer}>
-                <Image
-                    source={require('../assets/images/Back_Icon.png')}
-                    style={[globalStyles.icon, globalStyles.backIcon]}
-                />
+                <TouchableOpacity onPress={() => navigation.goBack()}>
+                    <Image
+                        source={require('../assets/images/Back_Icon.png')}
+                        style={[globalStyles.icon, globalStyles.backIcon]}
+                    />
+                </TouchableOpacity>
                 <Text style={[globalStyles.subtitle, globalStyles.backText]}>Surah List</Text>
             </View>
         </View>

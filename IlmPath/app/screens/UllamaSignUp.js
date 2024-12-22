@@ -1,26 +1,68 @@
 import React, { useState} from 'react';
 import { View, Text, Image, TouchableOpacity, TextInput, ScrollView, StyleSheet, Platform  } from 'react-native';
 import { globalStyles, responsiveIconSize, responsiveFontSize, responsiveNegativeMargin, responsiveMargin, InsertPicIcon } from '../styles/globalStyles';
+import { useUser } from '../../context/UserContext';
 import DateTimePicker from '@react-native-community/datetimepicker'; // Import DateTimePicker
 import DropDownPicker from 'react-native-dropdown-picker';
 import IntlPhoneInput from 'react-native-international-phone-number';
+import * as SecureStore from "expo-secure-store";
 import * as ImagePicker from 'expo-image-picker';
+import { signUpUllama } from '../services/authService';
 
 function UllamaSignUp({ navigation, route }) {
 
     const { email, password } = route.params;
     console.log('Email:', email);
     console.log('Password:', password);
-    
-    const handleSignUpPress = () => {
-        // Handle button press action
-    console.log("Date: " + dob);
-    console.log("selectedCountry: " + selectedCountry.callingCode);
-    console.log("inputValue: " + inputValue);
-    console.log("selectedImage: " + selectedImage);
-    console.log('HomeTabs Button Pressed');
-    navigation.replace('HomeTabs');
-    console.log('Navigated to HomeTabs');
+
+    const handleSignUpPress = async () => {
+
+        if (!fullName.trim() || !expertise.trim() || !dob || !inputValue.trim() || !value || !selectedImage) {
+            alert('Validation Error. Please fill all the fields.');
+            return;
+        }
+
+        const formData = new FormData();
+
+        // Append form fields
+        formData.append("email", email); // Passed from route params
+        formData.append("password", password); // Passed from route params
+        formData.append("role", "ullama");
+        formData.append("name", fullName);
+        formData.append("expertise", expertise);
+        formData.append("dob", dob);
+        formData.append("phoneNo", selectedCountry.callingCode + inputValue);
+        formData.append("gender", value);
+
+        const sanitizedFullName = fullName.replace(/[^a-zA-Z0-9]/g, ""); // Remove special characters and spaces
+        // Append image files
+        if (selectedImage) {
+            formData.append("certificateImage", {
+                uri: selectedImage.uri, // URI of the certificate image
+                name: selectedImage.name || `certificate_${sanitizedFullName}_${inputValue}_${Date.now()}.jpg`, // Optional file name
+                type: selectedImage.type || "image/jpeg", // Optional file type
+            });
+        }
+
+        try {
+            const result = await signUpUllama(formData);
+
+            if (!result.success && result.message === "Email already registered in the system.") {
+                // If sign-in fails, show the appropriate message
+                alert(result.message);
+                return;
+            }
+
+            console.log('Sign up successful:', result);
+      
+            await SecureStore.setItemAsync('userId', result.user.id.toString());
+      
+            setUser({ id: result.user.id, role: result.user.role });
+            navigation.replace('HomeTabs');
+        } catch (error) {
+        alert(error.message);
+        }
+
     };
 
     const handleGooglePress = () => {
@@ -47,6 +89,9 @@ function UllamaSignUp({ navigation, route }) {
         setSelectedCountry(country);
       }
 
+    const { setUser } = useUser(); // Access the setter from context
+    const [fullName, setFullName] = useState('');
+    const [expertise, setExpertise] = useState('');
     const [dob, setDob] = useState(''); // State to store selected date
     const [showDatePicker, setShowDatePicker] = useState(false); // State to control the date picker visibility
     const [tempDate, setTempDate] = useState(new Date()); // Temporary date state to manage selection
@@ -97,14 +142,19 @@ function UllamaSignUp({ navigation, route }) {
         // Open image picker
         const result = await ImagePicker.launchImageLibraryAsync({
             mediaTypes: ['images'],
+            base64: true,
             allowsEditing: true,
             aspect: [4, 3],
             quality: 1,
         });
 
-        if (!result.canceled) {
-            setSelectedImage(result.assets[0].uri); // Save the selected image URI
-            Alert.alert('Image Uploaded', 'The image has been uploaded successfully!');
+        if (!result.canceled && result.assets && result.assets.length > 0) {
+            const selected = result.assets[0];
+            console.log("Certificate image:", selected.uri);
+            setSelectedImage(selected); // Set the certificate image
+            alert("Certificate uploaded successfully!");
+        } else {
+        console.log("No certificate selected or operation canceled.");
         }
     };
     
@@ -114,10 +164,12 @@ function UllamaSignUp({ navigation, route }) {
                 {/* Back Button */}
                 <View style={globalStyles.headerContainer}>
                     <View style={globalStyles.backButtonContainer}>
-                        <Image
-                            source={require('../assets/images/Back_Icon.png')}
-                            style={[globalStyles.icon, globalStyles.backIcon]}
-                        />
+                        <TouchableOpacity onPress={() => navigation.goBack()}>
+                            <Image
+                                source={require('../assets/images/Back_Icon.png')}
+                                style={[globalStyles.icon, globalStyles.backIcon]}
+                            />
+                        </TouchableOpacity>
                         <Text style={[globalStyles.subtitle, globalStyles.backText]}>Fill Your Profile</Text>
                     </View>
                 </View>
@@ -156,6 +208,8 @@ function UllamaSignUp({ navigation, route }) {
                         placeholderTextColor="#A9A9A9"
                         keyboardType="default"
                         autoCapitalize="none"
+                        value={fullName}
+                        onChangeText={setFullName}
                     />
                     
                 </View>
@@ -166,6 +220,8 @@ function UllamaSignUp({ navigation, route }) {
                         placeholderTextColor="#A9A9A9"
                         keyboardType="default"
                         autoCapitalize="none"
+                        value={expertise}
+                        onChangeText={setExpertise}
                     />
                 </View>
 
@@ -218,8 +274,8 @@ function UllamaSignUp({ navigation, route }) {
                         onChangePhoneNumber={handleInputValue}
                         selectedCountry={selectedCountry}
                         onChangeSelectedCountry={handleSelectedCountry}
-                        defaultCountry="US" // Set default country
-                        defaultValue="+12505550199"
+                        defaultCountry="PK" // Set default country
+                        defaultValue=""
                         phoneInputStyles={{
                             container: {
                               flex: 1,

@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity, TextInput, Dimensions } from 'react-native';
 import { globalStyles, width, height, responsiveFontSize, responsiveIconSize } from '../styles/globalStyles';
+import * as SecureStore from "expo-secure-store";
+import { useUser } from '../../context/UserContext';
+import { signInUser } from '../services/authService';
 
 function EmailSignIn({ navigation }) { 
 
@@ -11,41 +14,28 @@ function EmailSignIn({ navigation }) {
             return;
         }
 
-        const signInData = {
-            email, 
-            password, 
-        };
-
-        console.log('Sign Up Data:', signInData);
-
         try {
-            // API call
-            console.log("Sending sign up request 1");
-            const response = await fetch("http://172.17.9.4:5000/signin", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify(signInData),
-            });
-            console.log("Sending sign up request 2");
-            // Handle response
-            const result = await response.json();
-            if (response.ok) {
-              console.log("Sign in successful:", result);
-              alert("Success", "Sign in Successful");
-              navigation.replace("HomeTabs", { user: result.user }); // Navigate to HomeTabs
-            } else {
-              console.error("Sign in failed:", result);
-              alert("Error", result.message || "Sign In Failed");
+            // Use the service function
+            const result = await signInUser(email, password);
+            
+            if (!result.success && result.message !== "Sign In Successful") {
+                // If sign-in fails, show the appropriate message
+                alert(result.message);
+                return;
             }
-          } catch (error) {
-            console.error("Error during sign in:", error);
-            alert("Error", "An unexpected error occurred. Please try again.");
-          }
 
-        // Handle button press action
-        //console.log('Sign In Button Pressed');
-        //navigation.replace('HomeTabs');
-        //console.log('Navigated to HomeScreen'); 
+            console.log('Sign in successful:', result);
+            
+            // Save user details securely
+            await SecureStore.setItemAsync('userId', result.user.id.toString());
+            await SecureStore.setItemAsync('role', result.user.role);
+      
+            setUser({ id: result.user.id, role: result.user.role }); // Set user context
+            navigation.replace('HomeTabs'); // Navigate to HomeTabs
+        } catch (error) {
+        alert(error.message);
+        }
+
     };
 
     const handleGooglePress = () => {
@@ -62,6 +52,7 @@ function EmailSignIn({ navigation }) {
 
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');  
+    const { setUser } = useUser(); // Access the setter from context
     const [secureText, setSecureText] = useState(true); 
     const [toggleCheckBox, setToggleCheckBox] = useState(false);
 

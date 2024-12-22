@@ -1,8 +1,10 @@
-import * as React from 'react';
+import React, { createContext, useContext, useState } from 'react';
 import * as SplashScreen from 'expo-splash-screen';
+import { UserProvider } from './context/UserContext';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { StripeProvider } from '@stripe/stripe-react-native'; 
 import { Asset } from 'expo-asset';
 import { useFonts } from 'expo-font';
 
@@ -19,8 +21,7 @@ import UllamaDescriptionScreen from './app/screens/UllamaDescriptionScreen';
 import BookAppointmentScreen from './app/screens/BookAppointmentScreen';
 import BottomTabNavigator from './app/navigation/BottomTabNavigator';
 
-// Prevent splash from auto-hiding
-//const Stack = createStackNavigator();
+
 const Tab = createBottomTabNavigator();
 SplashScreen.preventAutoHideAsync();
 
@@ -67,24 +68,28 @@ export default function App() {
   }
 
   return (
-    <NavigationContainer>
-      <Stack.Navigator screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="Options" component={LoginOptionsScreen} />
-        <Stack.Screen name="EmailSignIn" component={EmailSignIn} />
-        <Stack.Screen name="SignUp" component={SignUpScreen} />
-        <Stack.Screen name="StudentSignUp" component={StudentSignUp} />
-        <Stack.Screen name="UllamaSignUp" component={UllamaSignUp} />
-        <Stack.Screen name="SignIn" component={EmailSignIn} />
+    <StripeProvider publishableKey="pk_test_51QUaXvLPk2ToxWUBho0AzIHu39CaDs0oUqJBRQGySGnq2ZtlOqjMbE2d7s4hmh0lW3riGUFrMEzZBPOp2QAjc46K00RlxUAJjb"> 
+    <UserProvider>
+      <NavigationContainer>
+        <Stack.Navigator screenOptions={{ headerShown: false }}>
+          <Stack.Screen name="Options" component={LoginOptionsScreen} />
+          <Stack.Screen name="EmailSignIn" component={EmailSignIn} />
+          <Stack.Screen name="SignUp" component={SignUpScreen} />
+          <Stack.Screen name="StudentSignUp" component={StudentSignUp} />
+          <Stack.Screen name="UllamaSignUp" component={UllamaSignUp} />
+          <Stack.Screen name="SignIn" component={EmailSignIn} />
 
-        <Stack.Screen name="HomeTabs" component={BottomTabNavigator} />
-        <Stack.Screen name="ReadSurah" component={ReadSurah} />  
-        <Stack.Screen name="SurahList" component={AllSurahListScreen} />
-        <Stack.Screen name="DailyRecitationScreen" component={DailyRecitationScreen} />
-        <Stack.Screen name="UllamaList" component={UllamaList} />
-        <Stack.Screen name="UllamaDescription" component={UllamaDescriptionScreen} />
-        <Stack.Screen name="BookAppointment" component={BookAppointmentScreen}/>  
+          <Stack.Screen name="HomeTabs" component={BottomTabNavigator} />
+          <Stack.Screen name="ReadSurah" component={ReadSurah} />  
+          <Stack.Screen name="SurahList" component={AllSurahListScreen} />
+          <Stack.Screen name="DailyRecitationScreen" component={DailyRecitationScreen} />
+          <Stack.Screen name="UllamaList" component={UllamaList} />
+          <Stack.Screen name="UllamaDescription" component={UllamaDescriptionScreen} />
+          <Stack.Screen name="BookAppointment" component={BookAppointmentScreen}/>  
 
-      </Stack.Navigator>
-    </NavigationContainer>
+        </Stack.Navigator>
+      </NavigationContainer>
+    </UserProvider>
+    </StripeProvider>
   );
 }

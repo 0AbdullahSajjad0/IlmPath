@@ -1,9 +1,12 @@
 import React, { useState} from 'react';
 import { View, Text, Image, TouchableOpacity, TextInput, ScrollView, StyleSheet, Platform  } from 'react-native';
-import { globalStyles, responsiveIconSize, responsiveFontSize, responsiveNegativeMargin, responsiveMargin } from '../styles/globalStyles';
+import { globalStyles, BackIcon, responsiveIconSize, responsiveFontSize, responsiveNegativeMargin, responsiveMargin } from '../styles/globalStyles';
+import { useUser } from '../../context/UserContext';
 import DateTimePicker from '@react-native-community/datetimepicker'; // Import DateTimePicker
 import DropDownPicker from 'react-native-dropdown-picker';
 import IntlPhoneInput from 'react-native-international-phone-number';
+import * as SecureStore from "expo-secure-store";
+import { signUpStudent } from '../services/authService';
 
 function StudentSignUp({ navigation, route }) {
 
@@ -41,32 +44,24 @@ function StudentSignUp({ navigation, route }) {
         console.log('Sign Up Data:', signUpData);
 
         try {
-            // API call
-            console.log("Sending sign up request 1");
-            const response = await fetch("http://172.17.9.4:5000/signup", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify(signUpData),
-            });
-            console.log("Sending sign up request 2");
-            // Handle response
-            const result = await response.json();
-            if (response.ok) {
-              console.log("Sign up successful:", result);
-              alert("Success", "Sign Up Successful");
-              navigation.replace("HomeTabs", { user: result.user }); // Navigate to HomeTabs
-            } else {
-              console.error("Sign up failed:", result);
-              alert("Error", result.message || "Sign Up Failed");
-            }
-          } catch (error) {
-            console.error("Error during sign up:", error);
-            alert("Error", "An unexpected error occurred. Please try again.");
-          }
+            const result = await signUpStudent(signUpData);
 
-        console.log('HomeTabs Button Pressed');
-        navigation.replace('HomeTabs');
-        console.log('Navigated to HomeTabs');
+            if (!result.success && result.message === "Email already registered in the system.") {
+                // If sign-in fails, show the appropriate message
+                alert(result.message);
+                return;
+            }
+
+            console.log('Sign up successful:', result);
+      
+            await SecureStore.setItemAsync('userId', result.user.id.toString());
+      
+            setUser({ id: result.user.id, role: result.user.role });
+            navigation.replace('HomeTabs');
+        } catch (error) {
+        alert(error.message);
+        }
+
     };
 
     const handleGooglePress = () => {
@@ -81,6 +76,7 @@ function StudentSignUp({ navigation, route }) {
     console.log('Navigated to EmailSignIn');
     };
 
+    const { setUser } = useUser(); // Access the setter from context
     const [fullName, setFullName] = useState('');
     const [nickName, setNickName] = useState('');
     const [selectedCountry, setSelectedCountry] = useState(null);
@@ -137,10 +133,12 @@ function StudentSignUp({ navigation, route }) {
                 {/* Back Button */}
                 <View style={globalStyles.headerContainer}>
                     <View style={globalStyles.backButtonContainer}>
-                        <Image
-                            source={require('../assets/images/Back_Icon.png')}
-                            style={[globalStyles.icon, globalStyles.backIcon]}
-                        />
+                        <TouchableOpacity onPress={() => navigation.goBack()}>
+                            <Image
+                                source={require('../assets/images/Back_Icon.png')}
+                                style={[globalStyles.icon, globalStyles.backIcon]}
+                            />
+                        </TouchableOpacity>
                         <Text style={[globalStyles.subtitle, globalStyles.backText]}>Fill Your Profile</Text>
                     </View>
                 </View>
