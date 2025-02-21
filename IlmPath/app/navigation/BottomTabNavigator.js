@@ -3,7 +3,9 @@ import { View } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import {responsiveFontSize, responsiveMargin} from '../styles/globalStyles';
 import HomeScreen from '../screens/HomeScreen';
+import LessonsScreen from '../screens/LessonsScreen';
 import SessionsScreen from '../screens/SessionsScreen';
+import ProfileScreen from '../screens/ProfileScreen';
 import { Svg, Path } from 'react-native-svg';
 import { useUser } from '../../context/UserContext';
 
@@ -79,9 +81,9 @@ export default function BottomTabNavigator() {
       })}
     >
       <Tab.Screen name="Home" component={HomeScreen} />
-      <Tab.Screen name="Lesson" component={HomeScreen} />
+      <Tab.Screen name="Lesson" component={LessonsScreen} />
       <Tab.Screen name="Session" component={SessionsScreen} />
-      <Tab.Screen name="Profile" component={HomeScreen} />
+      <Tab.Screen name="Profile" component={ProfileScreen} />
     </Tab.Navigator>
   );
 }

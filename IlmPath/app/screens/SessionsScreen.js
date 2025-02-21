@@ -1,14 +1,30 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, Image, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
-import { width, height, responsiveMargin, responsiveFontSize, globalStyles } from '../styles/globalStyles';
+import { width, height, responsiveMargin, responsiveFontSize, ProfileBox, globalStyles } from '../styles/globalStyles';
+import { fetchAllUlama } from '../services/ullamaService';
 
 export default function SessionsScreen({ navigation }) {
-  const [data, setData] = useState([]); // Replace with actual data logic
+  const [data, setData] = useState([]); // Replace with your data
+
+  useEffect(() => {
+        const getUlamaList = async () => {
+          const fetchedUlama = await fetchAllUlama();
+          setData(fetchedUlama);
+        };
+    
+        getUlamaList();
+      }, []);
 
   const handleNewSession = () => {
     console.log('New Session Pressed');
     navigation.navigate('UllamaList');
     console.log('Navigated to Ullama List');
+  };
+
+  const handleSessionPress = (ulama) => {
+    // Navigate to the description screen with selected Ulama details
+    console.log('Ullama selected:', ulama);
+    navigation.navigate('OpenSession', { ulama: ulama });
   };
 
   return (
@@ -25,17 +41,28 @@ export default function SessionsScreen({ navigation }) {
 
       <ScrollView
         contentContainerStyle={[
-          globalStyles.formContainer,
-          {  flexGrow: 1 },
+          globalStyles.formContainer
         ]}
         showsVerticalScrollIndicator={false}
       >
-        {data.length > 0 ? (
+        {/* {data.length > 0 ? (
           // Display list when data exists
           data.map((item, index) => (
             <TouchableOpacity key={index} style={styles.listItem}>
               <Text style={styles.listItemText}>{item}</Text>
             </TouchableOpacity>
+          ))
+        ) */}
+        {/* Ulama Profile Boxes */}
+        {data.length > 0 ? (
+          data.map((ulama, index) => (
+            <ProfileBox
+              key={index}
+              name={ulama.name}
+              expertise={ulama.expertise}
+              picture={ulama.profileImage || require('../assets/images/Set_Picture.png')} 
+              onPress={() => handleSessionPress(ulama)}
+            />
           ))
         ) : (
           // Display image and text when no data exists

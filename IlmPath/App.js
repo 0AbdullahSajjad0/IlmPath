@@ -13,9 +13,13 @@ import EmailSignIn from './app/screens/EmailSignIn';
 import SignUpScreen from './app/screens/SignUpScreen';
 import StudentSignUp from './app/screens/StudentSignUp';
 import UllamaSignUp from './app/screens/UllamaSignUp';
+import ChatbotScreen from './app/screens/ChatbotScreen';
+import SurahFinderScreen from './app/screens/SurahFinderScreen';
 import ReadSurah from './app/screens/ReadSurah';
 import DailyRecitationScreen from './app/screens/DailyRecitationScreen';
 import AllSurahListScreen from './app/screens/AllSurahListScreen';
+import LessonsScreen from './app/screens/LessonsScreen';
+import OpenSessionScreen from './app/screens/OpenSessionScreen';
 import UllamaList from './app/screens/UllamaList';
 import UllamaDescriptionScreen from './app/screens/UllamaDescriptionScreen';
 import BookAppointmentScreen from './app/screens/BookAppointmentScreen';
@@ -82,9 +86,13 @@ export default function App() {
           <Stack.Screen name="SignIn" component={EmailSignIn} />
 
           <Stack.Screen name="HomeTabs" component={BottomTabNavigator} />
+          <Stack.Screen name="Chatbot" component={ChatbotScreen} />
+          <Stack.Screen name="SurahFinder" component={SurahFinderScreen} />
           <Stack.Screen name="ReadSurah" component={ReadSurah} />  
           <Stack.Screen name="SurahList" component={AllSurahListScreen} />
           <Stack.Screen name="DailyRecitationScreen" component={DailyRecitationScreen} />
+          <Stack.Screen name="LessonsScreen" component={LessonsScreen} />
+          <Stack.Screen name="OpenSession" component={OpenSessionScreen} />
           <Stack.Screen name="UllamaList" component={UllamaList} />
           <Stack.Screen name="UllamaDescription" component={UllamaDescriptionScreen} />
           <Stack.Screen name="BookAppointment" component={BookAppointmentScreen}/>  

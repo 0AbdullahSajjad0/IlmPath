@@ -18,7 +18,10 @@
       "adaptiveIcon": {
         "foregroundImage": "./app/assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "permissions": [
+        "RECORD_AUDIO"
+      ]
     },
     "web": {
       "favicon": "./app/assets/images/favicon.png"
@@ -26,6 +29,14 @@
     "entryPoint": "./App.js",
     "assetBundlePatterns": [
       "app/assets/data/*"
+    ],
+    "plugins": [
+      [
+        "expo-av",
+        {
+          "microphonePermission": "Allow $(PRODUCT_NAME) to access your microphone."
+        }
+      ]
     ]
   }
 }

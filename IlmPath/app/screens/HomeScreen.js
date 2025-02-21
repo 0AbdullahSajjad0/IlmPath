@@ -85,12 +85,28 @@ export default function HomeScreen({ navigation }) {
 
   }, []);
   
+  const handleChatBotPress = () => {
+    // Handle button press action
+    console.log('View More Button Pressed');
+    navigation.navigate('Chatbot');
+    console.log('Navigated to All Surah List'); 
+  };
+
+  const handleSurahFinderPress = () => {
+    // Handle button press action
+    console.log('View More Button Pressed');
+    navigation.navigate('SurahFinder');
+    console.log('Navigated to All Surah List'); 
+  };
+
   const handleViewMorePress = () => {
     // Handle button press action
     console.log('View More Button Pressed');
     navigation.navigate('SurahList');
     console.log('Navigated to All Surah List'); 
   };
+
+  
 
   const handleContinueButton = () => {
     if (!user || !user.id || !user.role) {
@@ -166,7 +182,7 @@ export default function HomeScreen({ navigation }) {
           <View style={styles.horizontalBox}>
             <View style={styles.boxTextContainer}>
               <Text style={styles.boxText}>Access the chatbot to clear a query?</Text>
-              <TouchableOpacity style={styles.boxButton}>
+              <TouchableOpacity style={styles.boxButton} onPress={handleChatBotPress}>
                 <Text style={styles.boxButtonText}>Get Started</Text>
               </TouchableOpacity>
             </View>
@@ -182,7 +198,7 @@ export default function HomeScreen({ navigation }) {
           <View style={styles.horizontalBox}>
             <View style={styles.boxTextContainer}>
               <Text style={styles.boxText}>Want to find a Surah from Ayah?</Text>
-              <TouchableOpacity style={styles.boxButton}>
+              <TouchableOpacity style={styles.boxButton} onPress={handleSurahFinderPress}>
                 <Text style={styles.boxButtonText}>Get Started</Text>
               </TouchableOpacity>
             </View>
