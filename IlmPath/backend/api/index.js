@@ -408,7 +408,7 @@ app.post("/getUserDetails", async (req, res) => {
 
     // Query to retrieve user details
     const userResult = await pool.query(
-      `SELECT name, profileImage 
+      `SELECT name, email, profileImage 
        FROM ${targetTable} 
        WHERE id = $1`,
       [user_id]
