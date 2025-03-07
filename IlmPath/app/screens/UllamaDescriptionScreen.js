@@ -10,7 +10,7 @@ export default function UllamaDescriptionScreen({ navigation, route }) {
   
   const handleBookAppointment = () =>{
     console.log('Process Button Pressed');
-    navigation.navigate('BookAppointment');
+    navigation.navigate('BookAppointment', { ulama: ulama });
     console.log('Navigated to Book Appointment Screen'); 
   }
 

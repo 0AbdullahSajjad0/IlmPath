@@ -1,19 +1,35 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { View, Text, Image, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
+import { useFocusEffect } from '@react-navigation/native';
 import { width, height, responsiveMargin, responsiveFontSize, ProfileBox, globalStyles } from '../styles/globalStyles';
-import { fetchAllUlama } from '../services/ullamaService';
+import { fetchStudentAppointments, fetchUllamaAppointments, checkAndEndAppointment } from '../services/appointmentService';
+import { useUser } from '../../context/UserContext';
 
 export default function SessionsScreen({ navigation }) {
   const [data, setData] = useState([]); // Replace with your data
+  const { user } = useUser();
 
-  useEffect(() => {
-        const getUlamaList = async () => {
-          const fetchedUlama = await fetchAllUlama();
-          setData(fetchedUlama);
-        };
+  useFocusEffect(
+    useCallback(() => {
+      const getAppointments = async () => {
+        console.log('Fetching appointments for:', user.id, 'Role:', user.role);
     
-        getUlamaList();
-      }, []);
+        let appointments = [];
+    
+        if (user.role === 'ullama') {
+          appointments = await fetchUllamaAppointments(user.id);
+        } else if (user.role === 'student') {
+          appointments = await fetchStudentAppointments(user.id);
+        }
+    
+        console.log('Appointments:', appointments);
+        setData(appointments);
+      };
+    
+      getAppointments();
+    }, [user.id, user.role])
+  );
+  
 
   const handleNewSession = () => {
     console.log('New Session Pressed');
@@ -21,10 +37,34 @@ export default function SessionsScreen({ navigation }) {
     console.log('Navigated to Ullama List');
   };
 
-  const handleSessionPress = (ulama) => {
-    // Navigate to the description screen with selected Ulama details
-    console.log('Ullama selected:', ulama);
-    navigation.navigate('OpenSession', { ulama: ulama });
+  const handleEditSessions = () => {
+    console.log('Edit Sessions Pressed');
+    navigation.navigate('EditSessions'); // Adjust based on actual edit screen name
+    console.log('Navigated to Edit Sessions');
+  };
+
+  const handleSessionPress = async (appointment) => {
+    const result = await checkAndEndAppointment(appointment.id);
+  
+    if (result.expired) {
+      alert(result.message);
+  
+      // Refresh the list
+      if (user.role === 'ullama') {
+        setData(await fetchUllamaAppointments(user.id));
+      } else {
+        setData(await fetchStudentAppointments(user.id));
+      }
+  
+      return;
+    }
+
+    if (result.notStarted) {
+      alert(result.message);
+      return;
+    }
+  
+    navigation.navigate('OpenSession', { appointment });
   };
 
   return (
@@ -33,8 +73,8 @@ export default function SessionsScreen({ navigation }) {
       <View style={globalStyles.headerContainer}>
         <View style={globalStyles.backButtonContainer}>
           <Text style={[globalStyles.subtitle, globalStyles.backText]}>Sessions</Text>
-          <TouchableOpacity style={styles.rowButton} onPress={handleNewSession}>
-            <Text style={styles.rowButtonText}>New Session</Text>
+          <TouchableOpacity style={styles.rowButton} onPress={user.role === 'ullama' ? handleEditSessions : handleNewSession}>
+            <Text style={styles.rowButtonText}>{user.role === 'ullama' ? 'Edit Sessions' : 'New Session'}</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -55,23 +95,30 @@ export default function SessionsScreen({ navigation }) {
         ) */}
         {/* Ulama Profile Boxes */}
         {data.length > 0 ? (
-          data.map((ulama, index) => (
+          data.map((item, index) => (
             <ProfileBox
               key={index}
-              name={ulama.name}
-              expertise={ulama.expertise}
-              picture={ulama.profileImage || require('../assets/images/Set_Picture.png')} 
-              onPress={() => handleSessionPress(ulama)}
+              name={user.role === 'ullama' ? item.student_name : item.ulama_name}
+              expertise={user.role === 'ullama' ? item.appointment_details : item.expertise}
+              picture={
+                (user.role === 'ullama'
+                  ? item.student_profile_image
+                  : item.profileImage) || require('../assets/images/Set_Picture.png')
+              }
+              onPress={() => handleSessionPress(item)}
             />
           ))
         ) : (
-          // Display image and text when no data exists
           <View style={styles.emptyContainer}>
             <Image
-              source={require('../assets/images/IlmPath_Splash.png')} // Replace with your image path
+              source={require('../assets/images/IlmPath_Splash.png')}
               style={styles.emptyImage}
             />
-            <Text style={styles.emptyText}>Book a session to avail services</Text>
+            <Text style={styles.emptyText}>
+              {user.role === 'ullama'
+                ? 'No student appointments yet.'
+                : 'Book a session to avail services'}
+            </Text>
           </View>
         )}
       </ScrollView>
