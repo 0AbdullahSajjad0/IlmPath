@@ -2,8 +2,8 @@ FROM python:3.9-slim
 
 WORKDIR /app
 
-# Install curl (needed for the healthcheck)
-RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
+# Install necessary system packages including curl and ffmpeg (for ffprobe)
+RUN apt-get update && apt-get install -y curl ffmpeg && rm -rf /var/lib/apt/lists/*
 
 # Set up the Transformers cache directory
 ENV TRANSFORMERS_CACHE=/app/cache
@@ -13,7 +13,7 @@ RUN mkdir -p /app/cache
 COPY requirements.txt .
 RUN pip install --upgrade pip && pip install --default-timeout=8000 -r requirements.txt
 
-# Copy the rest of the application code
+# Copy the application code
 COPY . .
 
 # Download NLTK data into a dedicated folder
@@ -22,7 +22,7 @@ RUN mkdir -p /usr/local/nltk_data && \
 
 ENV NLTK_DATA=/usr/local/nltk_data
 
-# Create an uploads folder
+# Create an uploads folder for temporary files
 RUN mkdir -p uploads
 
 EXPOSE 8000
