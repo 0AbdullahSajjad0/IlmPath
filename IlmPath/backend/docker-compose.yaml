@@ -38,7 +38,6 @@ services:
         condition: service_healthy
     volumes:
       - ./api:/usr/src/app
-      - /usr/src/app/node_modules
       - ./uploads:/usr/src/app/uploads
     command: ["node", "index.js"]
 
