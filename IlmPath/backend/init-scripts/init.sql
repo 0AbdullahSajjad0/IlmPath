@@ -95,3 +95,39 @@ VALUES
 (1, 'ullama', 6236),   -- Dr. Abdul Rehman has completed the entire Quran
 (2, 'ullama', 5001),   -- Mufti Saad Ali has completed 5000 Ayahs
 (3, 'ullama', 4500);   -- Ustadha Fatima Zahra has completed 4500 Ayahs
+
+INSERT INTO studentuser (name, nickName, email, password, DOB, phoneNo, gender)
+VALUES
+('Ali Khan', 'Ali', 'ali.khan@example.com', '12345678', '2000-05-10', '+923001234567', 'Male'),
+('Ayesha Ahmed', 'Ayesha', 'ayesha.ahmed@example.com', '12345678', '1998-08-25', '+923112345678', 'Female'),
+('Omar Farooq', 'Omar', 'omar.farooq@example.com', '12345678', '2001-11-15', '+923221234567', 'Male'),
+('Zara Malik', 'Zara', 'zara.malik@example.com', '12345678', '1999-04-22', '+923331234567', 'Female'),
+('Bilal Hussain', 'Bilal', 'bilal.hussain@example.com', '12345678', '2002-07-05', '+923441234567', 'Male');
+
+INSERT INTO ulamauser (name, expertise, email, password, DOB, phoneNo, gender, certificateImage, verified)
+VALUES
+('Dr. Abdul Rehman', 'Quranic Tafseer', 'abdul.rehman@example.com', '12345678', '1980-03-12', '+923551234567', 'Male', 'https://example.com/certificates/abdul.jpg', TRUE),
+('Mufti Saad Ali', 'Hadith and Fiqh', 'mufti.saad@example.com', '12345678', '1975-06-19', '+923661234567', 'Male', 'https://example.com/certificates/saad.jpg', TRUE),
+('Ustadha Fatima Zahra', 'Tajweed and Arabic Grammar', 'fatima.zahra@example.com', '12345678', '1988-09-30', '+923771234567', 'Female', 'https://example.com/certificates/fatima.jpg', TRUE),
+('Sheikh Ahmed Raza', 'Islamic Jurisprudence', 'ahmed.raza@example.com', '12345678', '1983-01-05', '+923881234567', 'Male', 'https://example.com/certificates/ahmed.jpg', TRUE),
+('Mufti Imran Qasim', 'Hadith Science', 'imran.qasim@example.com', '12345678', '1990-12-15', '+923991234567', 'Male', 'https://example.com/certificates/imran.jpg', FALSE);
+
+INSERT INTO notes (user_id, user_role, note_text, note_surrah, note_ayah)
+VALUES
+(1, 'student', 'Memorize this verse with tajweed rules.', 2, 255),
+(2, 'student', 'Understand the meaning behind this Ayah.', 3, 102),
+(3, 'student', 'Revise this before the next session.', 4, 56),
+(4, 'student', 'Focus on pronunciation of this Ayah.', 5, 33),
+(5, 'student', 'Important verse for understanding Quranic grammar.', 6, 75),
+(1, 'ullama', 'Discuss this verse with students next session.', 7, 99),
+(2, 'ullama', 'Check references related to this Ayah.', 8, 45),
+(3, 'ullama', 'Prepare tafseer notes for this verse.', 9, 88);
+
+INSERT INTO appointments (student_id, ulama_id, appointment_datetime, appointment_details, chat_id, status)
+VALUES
+(1, 1, '2025-03-10 15:00:00', 'Discuss Tafseer of Surah Al-Baqarah', 'chat-uuid-1', FALSE),
+(2, 2, '2025-03-11 16:30:00', 'Understanding Hadith principles', 'chat-uuid-2', FALSE),
+(3, 3, '2025-03-12 18:00:00', 'Tajweed recitation assessment', 'chat-uuid-3', FALSE),
+(4, 4, '2025-03-13 14:00:00', 'Islamic jurisprudence discussion', 'chat-uuid-4', FALSE),
+(5, 5, '2025-03-14 10:00:00', 'Hadith classification session', 'chat-uuid-5', FALSE);
+
