@@ -1,0 +1,10 @@
+flask
+torch
+transformers
+sentence-transformers
+librosa
+pandas
+nltk
+faiss-cpu
+pydub
+simple_colors

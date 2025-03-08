@@ -610,6 +610,94 @@ app.post('/create-payment-intent', async (req, res) => {
   }
 });
 
+const axios = require("axios");
+const FormData = require("form-data");
+const fs = require("fs");
+
+// endpoint to proxy audio search requests
+app.post("/audio-search-proxy", upload.single("audio"), async (req, res) => {
+  try {
+    // Ensure that an audio file was uploaded
+    if (!req.file) {
+      return res.status(400).json({ message: "No audio file provided." });
+    }
+
+    // Create a FormData object and append the audio file.
+    const formData = new FormData();
+    formData.append("audio", fs.createReadStream(req.file.path), req.file.originalname);
+
+    console.log("Forwarding audio file to Python service...");
+
+    // Send a POST request to the Python service.
+    // Note: Use the Docker Compose service name "python-service" (as defined in docker-compose.yaml)
+    const response = await axios.post("http://python-service:8000/audio-search", formData, {
+      headers: formData.getHeaders(),
+      maxContentLength: Infinity,
+      maxBodyLength: Infinity,
+    });
+
+    // Optionally, delete the temporary uploaded file after forwarding
+    fs.unlink(req.file.path, (err) => {
+      if (err) console.error("Error deleting file:", err);
+      else console.log("Uploaded file deleted successfully.");
+    });
+
+    // Return the response received from the Python service back to the client
+    return res.status(200).json(response.data);
+  } catch (error) {
+    console.error("Error in /audio-search-proxy:", error);
+    return res.status(500).json({ message: "Internal server error", details: error.message });
+  }
+});
+
+// Chatbot proxy endpoint
+app.post("/chatbot-proxy", async (req, res) => {
+  try {
+    // Ensure that the query is provided
+    if (!req.body || !req.body.query) {
+      return res.status(400).json({ message: "Query is required." });
+    }
+
+    console.log("Forwarding chatbot query to Python service...");
+
+    // Forward the JSON payload to the Python service's /chatbot endpoint
+    const response = await axios.post("http://python-service:8000/chatbot", req.body, {
+      headers: { "Content-Type": "application/json" }
+    });
+
+    // Return the response from the Python service back to the client
+    return res.status(200).json(response.data);
+  } catch (error) {
+    console.error("Error in /chatbot-proxy:", error);
+    return res.status(500).json({ message: "Internal server error", details: error.message });
+  }
+});
+
+// Proxy endpoint for Tajweed detection
+app.post("/tajweed-proxy", upload.single("audio"), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ message: "No audio file provided." });
+    }
+    const formData = new FormData();
+    formData.append("audio", fs.createReadStream(req.file.path), req.file.originalname);
+    console.log("Forwarding audio file to Python /tajweed endpoint...");
+    const response = await axios.post("http://python-service:8000/tajweed", formData, {
+      headers: formData.getHeaders(),
+      maxContentLength: Infinity,
+      maxBodyLength: Infinity,
+    });
+    fs.unlink(req.file.path, (err) => {
+      if (err) console.error("Error deleting file:", err);
+      else console.log("Uploaded file deleted successfully.");
+    });
+    return res.status(200).json(response.data);
+  } catch (error) {
+    console.error("Error in /tajweed-proxy:", error);
+    return res.status(500).json({ message: "Internal server error", details: error.message });
+  }
+});
+
 app.post('/checkExistingAppointment', async (req, res) => {
   const { student_id, ulama_id } = req.body;
 
@@ -735,9 +823,6 @@ app.get('/getAvailableTimes', async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 });
-
-
-
 
 // In your index.js (or routes file)
 app.post('/getStudentAppointments', async (req, res) => {
