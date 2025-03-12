@@ -59,10 +59,10 @@ export default function SessionsScreen({ navigation }) {
       return;
     }
 
-    if (result.notStarted) {
-      alert(result.message);
-      return;
-    }
+    // if (result.notStarted) {
+    //   alert(result.message);
+    //   return;
+    // }
   
     navigation.navigate('OpenSession', { appointment });
   };

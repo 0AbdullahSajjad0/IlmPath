@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, Image, TouchableOpacity, StyleSheet, Platform  } from 'react-native';
+import { View, Text, Image, TouchableOpacity, StyleSheet, Alert  } from 'react-native';
 import ToggleSwitch from 'toggle-switch-react-native';
 import { Audio } from 'expo-av';
 import {
@@ -8,6 +8,9 @@ import {
   responsiveIconSize,
   globalStyles,
 } from '../styles/globalStyles';
+import { searchAudio } from '../services/surahSearchService';
+
+const QuranData = require('../assets/data/QuranDataInJson.json');
 
 export default function SurahFinderScreen({ navigation }) {
   const [isOn, setIsOn] = useState(false);
@@ -70,16 +73,36 @@ export default function SurahFinderScreen({ navigation }) {
 
   // Plays the recorded audio upon pressing the submit button
   const handleSubmitPress = async () => {
+    console.log('Submitting audio for processing...');
     if (!audioUri) {
-      console.log('No audio recorded to play');
+      console.log('No audio recorded to process');
+      Alert.alert('Error', 'No audio recorded. Please record before submitting.');
       return;
     }
-    try {
-      console.log('Playing recorded audio:', audioUri);
-      const { sound } = await Audio.Sound.createAsync({ uri: audioUri });
-      await sound.playAsync();
-    } catch (error) {
-      console.error('Error playing audio:', error);
+    console.log('Audio URI:', audioUri);
+
+    // Show processing alert
+    Alert.alert('Processing', 'Please wait while we process your audio...', []);
+
+    console.log('Sending audio to backend...');
+    const response = await searchAudio(audioUri);
+
+    if (response && response.results.length > 0) {
+      const { surah_no } = response.results[0];
+
+      // Find the Surah Roman Name from the Quran JSON
+      const foundSurah = QuranData.find((ayah) => ayah.surah_no === surah_no);
+
+      if (foundSurah) {
+        console.log('Matched Surah:', foundSurah.surah_name_roman);
+        Alert.alert('Result', `Surah Name: ${foundSurah.surah_name_roman}`);
+      } else {
+        console.log('Surah not found in Quran JSON');
+        Alert.alert('Error', 'Surah not found.');
+      }
+    } else {
+      console.log('Audio search failed.');
+      Alert.alert('Error', 'No matching Surah found.');
     }
   };
 

@@ -14,11 +14,13 @@ import SignUpScreen from './app/screens/SignUpScreen';
 import StudentSignUp from './app/screens/StudentSignUp';
 import UllamaSignUp from './app/screens/UllamaSignUp';
 import ChatbotScreen from './app/screens/ChatbotScreen';
+import ChatbotResultScreen from './app/screens/ChatbotResultScreen';
 import SurahFinderScreen from './app/screens/SurahFinderScreen';
 import ReadSurah from './app/screens/ReadSurah';
 import DailyRecitationScreen from './app/screens/DailyRecitationScreen';
 import AllSurahListScreen from './app/screens/AllSurahListScreen';
 import LessonsScreen from './app/screens/LessonsScreen';
+import LessonDetailScreen from './app/screens/LessonDetailScreen';
 import OpenSessionScreen from './app/screens/OpenSessionScreen';
 import EditSessions from './app/screens/EditSessions';
 import UllamaList from './app/screens/UllamaList';
@@ -88,11 +90,13 @@ export default function App() {
 
           <Stack.Screen name="HomeTabs" component={BottomTabNavigator} />
           <Stack.Screen name="Chatbot" component={ChatbotScreen} />
+          <Stack.Screen name="ChatbotResult" component={ChatbotResultScreen} />
           <Stack.Screen name="SurahFinder" component={SurahFinderScreen} />
           <Stack.Screen name="ReadSurah" component={ReadSurah} />  
           <Stack.Screen name="SurahList" component={AllSurahListScreen} />
           <Stack.Screen name="DailyRecitationScreen" component={DailyRecitationScreen} />
           <Stack.Screen name="LessonsScreen" component={LessonsScreen} />
+          <Stack.Screen name="LessonDetailScreen" component={LessonDetailScreen} />
           <Stack.Screen name="OpenSession" component={OpenSessionScreen} options={{gestureEnabled: false,headerBackVisible: false,}} />
           <Stack.Screen name="EditSessions" component={EditSessions} />
           <Stack.Screen name="UllamaList" component={UllamaList} />

@@ -295,6 +295,7 @@ const styles = StyleSheet.create({
     englishAyahText: {
       alignSelf: 'flex-start',
       fontSize: responsiveFontSize(14),
+      marginBottom: responsiveMargin(20), // Space between Arabic and English text
       fontWeight: '400',
       color: 'black', // Lighter color for English text
     },

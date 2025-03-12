@@ -3,9 +3,9 @@ import { View, Text, Image, TouchableOpacity, ScrollView, StyleSheet } from 'rea
 import { width, height, responsiveMargin, responsiveFontSize, responsiveIconSize, globalStyles, StarIcon, UnlockedIcon} from '../styles/globalStyles';
 
 
-export default function LessonsScreen() {
+export default function LessonsScreen({ navigation }) {
     // const [data, setData] = useState([]); // Replace with actual data logic
-    const [data] = useState(Array.from({ length: 20 }, (_, i) => i + 1));
+    const [data] = useState(Array.from({ length: 10 }, (_, i) => i + 1));
 
     return (
     <View style={[globalStyles.container, { backgroundColor: '#F0DEAE' }]}>
@@ -23,7 +23,7 @@ export default function LessonsScreen() {
             showsVerticalScrollIndicator={false}
             >
             {data.map((id) => (
-                <LessonBox key={id} id={id} />
+                <LessonBox key={id} id={id} onPress={(lessonId) => navigation.navigate('LessonDetailScreen', { lessonId })}/>
             ))}
         </ScrollView>
     </View>
