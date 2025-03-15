@@ -25,6 +25,8 @@ export default function LessonsScreen({ navigation }) {
             {data.map((id) => (
                 <LessonBox key={id} id={id} onPress={(lessonId) => navigation.navigate('LessonDetailScreen', { lessonId })}/>
             ))}
+            {/* Extra Lesson (11th One) */}
+            <TestLessonBox onPress={() => navigation.navigate('QiratTestScreen')} />
         </ScrollView>
     </View>
   )
@@ -55,6 +57,24 @@ const LessonBox = ({ id, onPress }) => (
         </View>
       </View>
     </View>
+  </TouchableOpacity>
+);
+
+const TestLessonBox = ({ onPress }) => (
+  <TouchableOpacity style={{ width: width }} onPress={onPress}>
+      <View style={styles.verticalLineAndBoxContainer}>
+          {/* Vertical Line */}
+          <View style={styles.verticalLine}></View>
+
+          {/* Box without StarIcon and Number */}
+          <View style={[styles.infoBox, { paddingVertical: responsiveMargin(21)}]}>
+              {/* Only Text inside the box */}
+              <View style={{ flex: 1 }}>
+                  <Text style={styles.testText}>Qirat Test</Text>
+              </View>
+
+          </View>
+      </View>
   </TouchableOpacity>
 );
 
@@ -117,7 +137,12 @@ const LessonBox = ({ id, onPress }) => (
       fontSize: responsiveFontSize(14),
       fontWeight: '600',
       color: '#4E240D',
-      marginBottom: responsiveMargin(5),
+    },
+    testText: {
+      fontSize: responsiveFontSize(16),
+      fontWeight: '600',
+      color: '#4E240D',
+      alignSelf: 'center',
     },
     bottomText: {
       fontSize: responsiveFontSize(12),

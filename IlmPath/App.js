@@ -21,11 +21,13 @@ import DailyRecitationScreen from './app/screens/DailyRecitationScreen';
 import AllSurahListScreen from './app/screens/AllSurahListScreen';
 import LessonsScreen from './app/screens/LessonsScreen';
 import LessonDetailScreen from './app/screens/LessonDetailScreen';
+import QiratTestScreen from './app/screens/QiratTestScreen';
 import OpenSessionScreen from './app/screens/OpenSessionScreen';
 import EditSessions from './app/screens/EditSessions';
 import UllamaList from './app/screens/UllamaList';
 import UllamaDescriptionScreen from './app/screens/UllamaDescriptionScreen';
 import BookAppointmentScreen from './app/screens/BookAppointmentScreen';
+import AllBookmarkedSurahScreen from './app/screens/AllBookmarkedSurahScreen';
 import BottomTabNavigator from './app/navigation/BottomTabNavigator';
 
 
@@ -97,11 +99,13 @@ export default function App() {
           <Stack.Screen name="DailyRecitationScreen" component={DailyRecitationScreen} />
           <Stack.Screen name="LessonsScreen" component={LessonsScreen} />
           <Stack.Screen name="LessonDetailScreen" component={LessonDetailScreen} />
+          <Stack.Screen name="QiratTestScreen" component={QiratTestScreen} />
           <Stack.Screen name="OpenSession" component={OpenSessionScreen} options={{gestureEnabled: false,headerBackVisible: false,}} />
           <Stack.Screen name="EditSessions" component={EditSessions} />
           <Stack.Screen name="UllamaList" component={UllamaList} />
           <Stack.Screen name="UllamaDescription" component={UllamaDescriptionScreen} />
           <Stack.Screen name="BookAppointment" component={BookAppointmentScreen}/>  
+          <Stack.Screen name="BookmarkedSurahs" component={AllBookmarkedSurahScreen} />
 
         </Stack.Navigator>
       </NavigationContainer>

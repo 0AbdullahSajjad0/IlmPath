@@ -230,6 +230,7 @@ export default function LessonDetailScreen({ navigation }) {
 },
   gridText: {
     fontSize: responsiveFontSize(16),
+    fontFamily:'NotoNaskhArabic-Regular',
     color: '#4E240D',
     fontWeight: 'bold',
   },

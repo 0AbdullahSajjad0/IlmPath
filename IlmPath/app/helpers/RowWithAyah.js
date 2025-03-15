@@ -1,26 +1,41 @@
-import React, {useState, useEffect} from 'react';
-import { View, Text, TextInput, Image, ImageBackground, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
-import { width, height, responsiveIconSize, responsiveMargin, responsiveFontSize, BookmarkIcon, PlayIcon, NoteIcon, globalStyles } from '../styles/globalStyles';
+import React, { useState, useEffect } from 'react';
+import { View, Text, TextInput, Image, TouchableOpacity, StyleSheet } from 'react-native';
+import { width, height, responsiveIconSize, responsiveMargin, responsiveFontSize, BookmarkIcon, PlayIcon, NoteIcon } from '../styles/globalStyles';
 import { fetchNote, saveNote } from '../services/noteService';
-import { Audio } from 'expo-av'; // Import Expo AV for audio playback
+import { toggleBookmark, getBookmarks } from '../services/bookmarkService';
+import { Audio } from 'expo-av';
 import StaticAudioMapping from '../assets/data/StaticAudioMapping';
+import { useUser } from '../../context/UserContext';  // ✅ Import useUser to fetch context
 
 const RowWithAyah = ({ 
   number, 
   arabicText, 
   englishText, 
   surahId, 
-  user, 
-  onProgressTrack, // Callback to handle progress tracking
-  enableProgressTracking = false, // Flag to enable/disable progress tracking
   currentlyPlayingAyah,
-  setCurrentlyPlayingAyah 
+  setCurrentlyPlayingAyah,
+  removeBookmark
 }) => {
+  const { user } = useUser(); // ✅ Fetch user directly from context
   const [activeIcon, setActiveIcon] = useState(null);
   const [isTextAreaVisible, setTextAreaVisible] = useState(false);
   const [note, setNote] = useState('');
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentSound, setCurrentSound] = useState(null);
+  const [isBookmarked, setIsBookmarked] = useState(false); // Track bookmark state
+
+  useEffect(() => {
+    if (user && user.id && user.role) {
+      const fetchBookmarks = async () => {
+        const bookmarks = await getBookmarks(user.id, user.role);
+        const isCurrentAyahBookmarked = bookmarks.some(
+          (b) => b.bookmarked_surah === surahId && b.bookmarked_ayah === number
+        );
+        setIsBookmarked(isCurrentAyahBookmarked);
+      };
+      fetchBookmarks();
+    }
+  }, [user, surahId, number]);
 
   const requestAudioPermission = async () => {
     const { granted } = await Audio.requestPermissionsAsync();
@@ -38,7 +53,6 @@ const RowWithAyah = ({
     const filePath = StaticAudioMapping[ayahKey];
 
     if (!filePath) {
-      console.error(`Audio file not found for key ${ayahKey}`);
       alert('Audio file not found.');
       return;
     }
@@ -53,39 +67,42 @@ const RowWithAyah = ({
           sound.unloadAsync();
           setCurrentSound(null);
           setIsPlaying(false);
-
-          // Reset the currently playing Ayah
           setCurrentlyPlayingAyah(null);
-
           setActiveIcon(null);
-          // Track progress only after playback finishes and if enabled
-          if (enableProgressTracking && onProgressTrack) {
-            onProgressTrack(number);
-          }
         }
       });
     } catch (error) {
-      console.error('Error playing audio:', error);
       alert('Error playing audio.');
     }
   };
 
   const handleIconPress = async (icon) => {
     if ((!user || !user.id || !user.role) && icon !== 'play') {
-        alert('Please log in to use this feature.');
-        return; // Prevent further execution
+      alert('Please log in to use this feature.');
+      return;
     }
-    
+
     setActiveIcon(icon === activeIcon ? null : icon);
 
-    if (icon === 'play') {
-      
-      const ayahKey = `${surahId.toString().padStart(3, '0')}${number.toString().padStart(3, '0')}`;
+    if (icon === 'bookmark') {
+      const response = await toggleBookmark(user.id, user.role, surahId, number);
+      if (response) {
+        setIsBookmarked(response.bookmarked);
+  
+        // If unbookmarked, remove from the bookmarked list dynamically
+        if (!response.bookmarked && removeBookmark) {
+          removeBookmark(surahId, number);
+          fetchBookmarkedAyahs();
+        }
+      }
+      return;
+    }
+    
 
-      // If another Ayah is playing, prevent this one from playing
+    if (icon === 'play') {
+      const ayahKey = `${surahId.toString().padStart(3, '0')}${number.toString().padStart(3, '0')}`;
       if (currentlyPlayingAyah && currentlyPlayingAyah !== ayahKey) {
-        setActiveIcon(null);
-        alert('Please stop the currently playing Ayah or finish it before playing another one.');
+        alert('Please stop the currently playing Ayah before playing another one.');
         return;
       }
 
@@ -101,8 +118,6 @@ const RowWithAyah = ({
       await playAudio(surahId, number);
     }
 
-    
-
     if (icon === 'note') {
       if (!isTextAreaVisible) {
         const fetchedNote = await fetchNote(user, surahId, number);
@@ -112,6 +127,7 @@ const RowWithAyah = ({
       }
       setTextAreaVisible(!isTextAreaVisible);
     }
+
   };
 
   return (
@@ -123,62 +139,42 @@ const RowWithAyah = ({
 
         {/* Icons */}
         <View style={styles.iconsContainer}>
-            
-            <TouchableOpacity
-                style={[
-                styles.iconWrapper,
-                activeIcon === 'note' && styles.activeIconWrapper,
-                ]}
-                onPress={() => handleIconPress('note')}
-            >
-                <NoteIcon />
-            </TouchableOpacity>
-            <TouchableOpacity
-                style={[
-                styles.iconWrapper,
-                activeIcon === 'play' && styles.activeIconWrapper,
-                ]}
-                onPress={() => handleIconPress('play')}
-            >
-                <PlayIcon />
-            </TouchableOpacity>
-            <TouchableOpacity
-                style={[
-                styles.iconWrapper,
-                activeIcon === 'bookmark' && styles.activeIconWrapper,
-                ]}
-                onPress={() => handleIconPress('bookmark')}
-            >
-                <BookmarkIcon filled={activeIcon === 'bookmark'} />
-            </TouchableOpacity>
-            
+          <TouchableOpacity style={[styles.iconWrapper, activeIcon === 'note' && styles.activeIconWrapper]} onPress={() => handleIconPress('note')}>
+            <NoteIcon />
+          </TouchableOpacity>
+          <TouchableOpacity style={[styles.iconWrapper, activeIcon === 'play' && styles.activeIconWrapper]} onPress={() => handleIconPress('play')}>
+            <PlayIcon />
+          </TouchableOpacity>
+          <TouchableOpacity style={[styles.iconWrapper, isBookmarked && styles.activeIconWrapper]} onPress={() => handleIconPress('bookmark')}>
+            <BookmarkIcon filled={isBookmarked} />
+          </TouchableOpacity>
         </View>
-        
       </View>
 
       {/* Ayah with Translation */}
-        <View style={styles.ayahContainer}>
+      <View style={styles.ayahContainer}>
         <Text style={styles.arabicAyahText}>{arabicText}</Text>
         <Text style={styles.englishAyahText}>{englishText}</Text>
-        </View>
+      </View>
 
       {/* Text Area */}
       {isTextAreaVisible && (
-           <TextInput
-           style={styles.textArea}
-           value={note}
-           onChangeText={setNote}
-           placeholder="Add a Note to this Ayah"
-           multiline
-           numberOfLines={4}
-           textAlignVertical="top" // Align text to the top in multiline mode
-         />
-       )}
+        <TextInput
+          style={styles.textArea}
+          value={note}
+          onChangeText={setNote}
+          placeholder="Add a Note to this Ayah"
+          multiline
+          numberOfLines={4}
+          textAlignVertical="top"
+        />
+      )}
     </>
   );
 };
 
 export default RowWithAyah;
+
 
 const styles = StyleSheet.create({
     gradientBackground: {

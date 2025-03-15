@@ -950,6 +950,60 @@ app.post('/endAppointment', async (req, res) => {
 });
 
 
+app.post("/toggleBookmark", async (req, res) => {
+  const { user_id, user_role, bookmarked_surah, bookmarked_ayah } = req.body;
+
+  if (!user_id || !user_role || !bookmarked_surah || !bookmarked_ayah) {
+    return res.status(400).json({ message: "All fields are required." });
+  }
+
+  try {
+    // Check if the bookmark already exists
+    const existingBookmark = await pool.query(
+      "SELECT id FROM bookmarks WHERE user_id = $1 AND user_role = $2 AND bookmarked_surah = $3 AND bookmarked_ayah = $4",
+      [user_id, user_role, bookmarked_surah, bookmarked_ayah]
+    );
+
+    if (existingBookmark.rows.length > 0) {
+      // If exists, remove the bookmark
+      await pool.query("DELETE FROM bookmarks WHERE id = $1", [existingBookmark.rows[0].id]);
+      return res.status(200).json({ message: "Bookmark removed successfully", bookmarked: false });
+    } else {
+      // Otherwise, add a new bookmark
+      await pool.query(
+        "INSERT INTO bookmarks (user_id, user_role, bookmarked_surah, bookmarked_ayah) VALUES ($1, $2, $3, $4)",
+        [user_id, user_role, bookmarked_surah, bookmarked_ayah]
+      );
+      return res.status(201).json({ message: "Bookmark added successfully", bookmarked: true });
+    }
+  } catch (error) {
+    console.error("Error toggling bookmark:", error);
+    res.status(500).json({ message: "Internal server error." });
+  }
+});
+
+app.post("/getBookmarks", async (req, res) => {
+  const { user_id, user_role } = req.body;
+
+  if (!user_id || !user_role) {
+    return res.status(400).json({ message: "User ID and role are required." });
+  }
+
+  try {
+    const result = await pool.query(
+      "SELECT bookmarked_surah, bookmarked_ayah FROM bookmarks WHERE user_id = $1 AND user_role = $2",
+      [user_id, user_role]
+    );
+
+    return res.status(200).json({
+      message: "Bookmarks retrieved successfully",
+      bookmarks: result.rows,
+    });
+  } catch (error) {
+    console.error("Error retrieving bookmarks:", error);
+    res.status(500).json({ message: "Internal server error." });
+  }
+});
 
 
 

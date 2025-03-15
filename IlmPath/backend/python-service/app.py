@@ -16,6 +16,7 @@ from transformers import AutoProcessor, AutoModelForSpeechSeq2Seq, Wav2Vec2Featu
 from sentence_transformers import SentenceTransformer, util
 from flask import Flask, request, jsonify
 from pydub import AudioSegment
+import subprocess
 from pathlib import Path
 
 # Set the Transformers cache directory so that models are cached persistently.
@@ -236,15 +237,24 @@ def lazy_load_tajweed():
         print("DEBUG: Tajweed detection components loaded successfully.", flush=True)
 
 def ensure_wav(audio_file_path: str, desired_sample_rate: int = 16000) -> str:
+    """Ensures the audio file is in WAV format with the correct sample rate and mono channel."""
+    
     file_ext = Path(audio_file_path).suffix.lower()
-    if file_ext != '.wav':
-        audio_segment = AudioSegment.from_file(audio_file_path, format=file_ext.replace('.', ''))
-        audio_segment = audio_segment.set_frame_rate(desired_sample_rate).set_channels(1)
-        temp_path = str(Path(audio_file_path).with_suffix('')) + '_temp.wav'
-        audio_segment.export(temp_path, format="wav")
+    temp_path = str(Path(audio_file_path).with_suffix('')) + '_fixed.wav'
+    
+    try:
+        # Convert audio to PCM WAV, mono, 16kHz
+        subprocess.run([
+            "ffmpeg", "-i", audio_file_path, "-acodec", "pcm_s16le",
+            "-ar", str(desired_sample_rate), "-ac", "1", temp_path, "-y"
+        ], check=True)
+        
         return temp_path
-    else:
-        return audio_file_path
+    except subprocess.CalledProcessError as e:
+        print(f"❌ FFmpeg conversion failed: {e}")
+        return audio_file_path  # Return original if conversion fails
+
+    return temp_path
 
 def predict_tajweed(audio_file: str, sample_rate: int = 16000, target_rate: float = 6.69, max_length: int = 147515):
     wav_path = ensure_wav(audio_file, desired_sample_rate=sample_rate)

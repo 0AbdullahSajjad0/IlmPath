@@ -85,7 +85,16 @@ CREATE TABLE IF NOT EXISTS ulama_availability (
 CREATE INDEX idx_ulama_availability_day ON ulama_availability (ulama_id, day_of_week);
 CREATE INDEX idx_ulama_availability_date ON ulama_availability (ulama_id, specific_date);
 
-
+-- Create "bookmarks" table to store user-specific Ayah bookmarks
+CREATE TABLE IF NOT EXISTS bookmarks (
+    id SERIAL PRIMARY KEY,              -- Auto-incrementing unique identifier
+    user_id INT NOT NULL,               -- User identifier
+    user_role VARCHAR(10) NOT NULL,     -- Role to distinguish between student and ulama
+    bookmarked_surah INT NOT NULL,      -- Surah number of the bookmarked Ayah
+    bookmarked_ayah INT NOT NULL,       -- Ayah number being bookmarked
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Timestamp for when the bookmark was created
+    UNIQUE (user_id, user_role, bookmarked_surah, bookmarked_ayah) -- Ensures unique bookmarks per user-role
+);
 
 INSERT INTO progress (user_id, user_role, progress)
 VALUES
@@ -95,22 +104,6 @@ VALUES
 (1, 'ullama', 6236),   -- Dr. Abdul Rehman has completed the entire Quran
 (2, 'ullama', 5001),   -- Mufti Saad Ali has completed 5000 Ayahs
 (3, 'ullama', 4500);   -- Ustadha Fatima Zahra has completed 4500 Ayahs
-
-INSERT INTO studentuser (name, nickName, email, password, DOB, phoneNo, gender)
-VALUES
-('Ali Khan', 'Ali', 'ali.khan@example.com', '12345678', '2000-05-10', '+923001234567', 'Male'),
-('Ayesha Ahmed', 'Ayesha', 'ayesha.ahmed@example.com', '12345678', '1998-08-25', '+923112345678', 'Female'),
-('Omar Farooq', 'Omar', 'omar.farooq@example.com', '12345678', '2001-11-15', '+923221234567', 'Male'),
-('Zara Malik', 'Zara', 'zara.malik@example.com', '12345678', '1999-04-22', '+923331234567', 'Female'),
-('Bilal Hussain', 'Bilal', 'bilal.hussain@example.com', '12345678', '2002-07-05', '+923441234567', 'Male');
-
-INSERT INTO ulamauser (name, expertise, email, password, DOB, phoneNo, gender, certificateImage, verified)
-VALUES
-('Dr. Abdul Rehman', 'Quranic Tafseer', 'abdul.rehman@example.com', '12345678', '1980-03-12', '+923551234567', 'Male', 'https://example.com/certificates/abdul.jpg', TRUE),
-('Mufti Saad Ali', 'Hadith and Fiqh', 'mufti.saad@example.com', '12345678', '1975-06-19', '+923661234567', 'Male', 'https://example.com/certificates/saad.jpg', TRUE),
-('Ustadha Fatima Zahra', 'Tajweed and Arabic Grammar', 'fatima.zahra@example.com', '12345678', '1988-09-30', '+923771234567', 'Female', 'https://example.com/certificates/fatima.jpg', TRUE),
-('Sheikh Ahmed Raza', 'Islamic Jurisprudence', 'ahmed.raza@example.com', '12345678', '1983-01-05', '+923881234567', 'Male', 'https://example.com/certificates/ahmed.jpg', TRUE),
-('Mufti Imran Qasim', 'Hadith Science', 'imran.qasim@example.com', '12345678', '1990-12-15', '+923991234567', 'Male', 'https://example.com/certificates/imran.jpg', FALSE);
 
 INSERT INTO notes (user_id, user_role, note_text, note_surrah, note_ayah)
 VALUES

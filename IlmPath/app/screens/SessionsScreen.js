@@ -1,7 +1,7 @@
 import React, { useCallback, useState } from 'react';
 import { View, Text, Image, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
-import { width, height, responsiveMargin, responsiveFontSize, ProfileBox, globalStyles } from '../styles/globalStyles';
+import { width, height, responsiveMargin, responsiveIconSize, responsiveFontSize, ProfileBox, globalStyles } from '../styles/globalStyles';
 import { fetchStudentAppointments, fetchUllamaAppointments, checkAndEndAppointment } from '../services/appointmentService';
 import { useUser } from '../../context/UserContext';
 
@@ -66,6 +66,25 @@ export default function SessionsScreen({ navigation }) {
   
     navigation.navigate('OpenSession', { appointment });
   };
+
+  if (!user || !user.id || !user.role) {
+    return (
+      <View style={[globalStyles.container, { backgroundColor: '#F0DEAE', justifyContent: 'center', alignItems: 'center' }]}>
+        <View style={{justifyContent: 'center', alignItems: 'center',}}>
+          <Image
+            source={require('../assets/images/IlmPath_Splash.png')}
+            style={styles.emptyImage}
+          />
+          <Text style={styles.emptyText}>
+              Sign In To Avail Services
+          </Text>
+        </View>
+        <TouchableOpacity style={styles.signInButton} onPress={() => navigation.navigate('SignIn')}>
+          <Text style={styles.signInText}>Sign In</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
 
   return (
     <View style={[globalStyles.container, { backgroundColor: '#F0DEAE' }]}>
@@ -165,5 +184,18 @@ const styles = StyleSheet.create({
     fontFamily: 'Jost-SemiBold',
     marginTop: responsiveMargin(-20),
     color: '#4E240D',
+  },
+  signInButton: {
+    backgroundColor: '#BC6C25',
+    padding: responsiveMargin(15),
+    marginTop: responsiveMargin(40),
+    borderRadius: responsiveIconSize(10),
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: width / 3.5,
+  },
+  signInText: {
+    color: 'white',
+    fontSize: responsiveFontSize(16),
   },
 });
