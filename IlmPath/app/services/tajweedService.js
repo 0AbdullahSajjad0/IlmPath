@@ -29,3 +29,29 @@ export const sendAudioForTajweedAnalysis = async (audioUri) => {
     return null;
   }
 };
+
+// Function to fetch Tajweed analysis for a specific Ayah
+export const fetchTajweedAnalysis = async (surahNumber, ayahNumber) => {
+  try {
+    const response = await fetch(
+      `${config.apiBaseUrl}/getTajweedAnalysis?surah_number=${surahNumber}&ayah_number=${ayahNumber}`,
+      {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+      }
+    );
+
+    const result = await response.json();
+
+    if (response.ok) {
+      console.log("Fetched Tajweed analysis successfully:", result);
+      return result;
+    } else {
+      console.error("Error fetching Tajweed analysis:", result.message);
+      return null;
+    }
+  } catch (error) {
+    console.error("Error fetching Tajweed analysis:", error);
+    return null;
+  }
+};

@@ -1014,6 +1014,35 @@ app.post("/getBookmarks", async (req, res) => {
   }
 });
 
+// 📌 GET Tajweed Analysis for a Specific Surah and Ayah
+app.get("/getTajweedAnalysis", async (req, res) => {
+  const { surah_number, ayah_number } = req.query;
+
+  if (!surah_number || !ayah_number) {
+    return res.status(400).json({ message: "Surah number and Ayah number are required." });
+  }
+
+  try {
+    const result = await pool.query(
+      `SELECT separate_tide, concealment, tight_noon
+       FROM tajweed_analysis 
+       WHERE surah_number = $1 AND ayah_number = $2`,
+      [surah_number, ayah_number]
+    );
+
+    if (result.rows.length > 0) {
+      return res.status(200).json({
+        message: "Tajweed analysis retrieved successfully",
+        tajweed: result.rows[0],
+      });
+    } else {
+      return res.status(404).json({ message: "No Tajweed analysis found for this Ayah." });
+    }
+  } catch (error) {
+    console.error("Error retrieving Tajweed analysis:", error);
+    res.status(500).json({ message: "Internal server error." });
+  }
+});
 
 
 

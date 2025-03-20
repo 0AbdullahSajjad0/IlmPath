@@ -778,6 +778,7 @@ const StaticAudioMapping = {
   "005107": require("../audio/005107.mp3"),
   "005108": require("../audio/005108.mp3"),
   "005109": require("../audio/005109.mp3"),
+  "005109(2)": require("../audio/005109(2).mp3"),
   "005110": require("../audio/005110.mp3"),
   "005111": require("../audio/005111.mp3"),
   "005112": require("../audio/005112.mp3"),

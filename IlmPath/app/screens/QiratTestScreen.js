@@ -16,11 +16,19 @@
     globalStyles,
     width,
   } from '../styles/globalStyles';
-  import { sendAudioForTajweedAnalysis } from '../services/tajweedService';
-  import * as FileSystem from 'expo-file-system';
+  import { sendAudioForTajweedAnalysis, fetchTajweedAnalysis } from '../services/tajweedService';
+  import StaticAudioMapping from '../assets/data/StaticAudioMapping';
   import Modal from 'react-native-modal';
 
   const QuranData = require('../assets/data/QuranDataInJson.json');
+
+  // Define the sequence of Ayahs
+  const ayahSequence = [
+    { surah: 5, ayah: 109 }, // Default first Ayah
+    ...Array.from({ length: 6 }, (_, i) => ({ surah: 114, ayah: i + 1 })), // Surah An-Nas (6 Ayahs)
+    ...Array.from({ length: 6 }, (_, i) => ({ surah: 109, ayah: i + 1 })), // Surah Al-Kafirun (6 Ayahs)
+    ...Array.from({ length: 3 }, (_, i) => ({ surah: 108, ayah: i + 1 })), // Surah Al-Kawthar (3 Ayahs)
+  ];
 
   export default function QiratTestScreen({ navigation }) {
     const [isRecording, setIsRecording] = useState(false);
@@ -30,15 +38,40 @@
     const [sound, setSound] = useState(null); // For audio playback
     const [isModalVisible, setModalVisible] = useState(false);
     const [analysisResult, setAnalysisResult] = useState(null);
+    const [correctTajweed, setCorrectTajweed] = useState(null);
+    const [showCorrectAnswer, setShowCorrectAnswer] = useState(false);
+    const [currentAyahIndex, setCurrentAyahIndex] = useState(0); // Track current Ayah index
 
-    // Fetch the first Ayah of Surah An-Nas (Surah 114)
+    const currentAyah = ayahSequence[currentAyahIndex];
+
     useEffect(() => {
       const foundAyah = QuranData.find(
-        (ayah) => parseInt(ayah.surah_no) === 114 && parseInt(ayah.ayah_no_surah) === 4
+        (a) => parseInt(a.surah_no) === currentAyah.surah && parseInt(a.ayah_no_surah) === currentAyah.ayah
       );
-      setAyah(foundAyah ? foundAyah.ayah_ar : 'Ayah Not Found');
-      console.log('Fetched Ayah:', ayah);
-    }, []);
+      
+      if (foundAyah) {
+        if (currentAyah.surah === 5 && currentAyah.ayah === 109) {
+          // Special case for 5:109
+          const secondHalf = foundAyah.ayah_ar.slice(Math.floor(foundAyah.ayah_ar.length / 2));
+          const words = secondHalf.split(' ');
+          setAyah(words.slice(1).join(' ')); // Remove first word and join rest
+        } else {
+          setAyah(foundAyah.ayah_ar); // Default behavior for other Ayahs
+        }
+      }
+    }, [currentAyah]);
+    
+
+    // Fetch the correct Tajweed Analysis on component mount
+    useEffect(() => {
+      const loadTajweed = async () => {
+        const result = await fetchTajweedAnalysis(currentAyah.surah, currentAyah.ayah);
+        if (result) {
+          setCorrectTajweed(result);
+        }
+      };
+      loadTajweed();
+    }, [currentAyah]);
 
     // ✅ Handle Recording
     const handleRecordingToggle = async () => {
@@ -152,7 +185,49 @@
       }
     };
     
-    
+    const playCorrectAnswerAudio = async () => {
+      const ayahKey = currentAyah.surah === 5 && currentAyah.ayah === 109
+        ? `${currentAyah.surah.toString().padStart(3, '0')}${currentAyah.ayah.toString().padStart(3, '0')}(2)`
+        : `${currentAyah.surah.toString().padStart(3, '0')}${currentAyah.ayah.toString().padStart(3, '0')}`;
+      const filePath = StaticAudioMapping[ayahKey];
+  
+      if (!filePath) {
+        alert('Audio file for the correct answer not found.');
+        return;
+      }
+  
+      try {
+        if (sound) {
+          await sound.unloadAsync();
+        }
+        const { sound: newSound } = await Audio.Sound.createAsync(filePath, { shouldPlay: true });
+        setSound(newSound);
+        await newSound.playAsync();
+  
+        newSound.setOnPlaybackStatusUpdate(async (status) => {
+          if (status.didJustFinish) {
+            await newSound.unloadAsync();
+            setSound(null);
+          }
+        });
+      } catch (error) {
+        console.error("Error playing correct answer audio:", error);
+      }
+    };
+  
+    // ✅ Navigation for Ayah
+    const goToNextAyah = () => {
+      if (currentAyahIndex < ayahSequence.length - 1) {
+        setCurrentAyahIndex(currentAyahIndex + 1);
+        setShowCorrectAnswer(false);
+      }
+    };
+    const goToPreviousAyah = () => {
+      if (currentAyahIndex > 0) {
+        setCurrentAyahIndex(currentAyahIndex - 1);
+        setShowCorrectAnswer(false);
+      }
+    };
 
     return (
       <View style={[globalStyles.container, { backgroundColor: '#F0DEAE' }]}>
@@ -172,7 +247,7 @@
         </View>
 
         {/* Toggle Switch (Left-Aligned) */}
-        <View style={styles.toggleContainer}>
+        <View style={styles.toggleRow}>
           <ToggleSwitch
             isOn={isRecording}
             onColor="#2ECC71" // Green when recording
@@ -180,11 +255,59 @@
             size="large"
             disabled={true}
           />
+            {/* Correct Answer Button (Right Side) */}
+          <TouchableOpacity
+            style={styles.correctAnswerButton}
+            onPress={() => {
+              setShowCorrectAnswer(!showCorrectAnswer);
+              if(!showCorrectAnswer) {
+                playCorrectAnswerAudio(5, 109);
+              }
+            }}
+          >
+            <Text style={styles.correctAnswerText}>Correct Answer</Text>
+          </TouchableOpacity>
+
         </View>
+
+        {/* Tajweed Analysis (Visible When Clicked) */}
+        {showCorrectAnswer && correctTajweed && (
+          <View style={styles.correctAnswerContainer}>
+            <View style={styles.analysisRow}>
+              <Text style={styles.analysisHeader}>Separate Tide</Text>
+              <Text style={styles.analysisHeader}>Concealment</Text>
+              <Text style={styles.analysisHeader}>Tight Noon</Text>
+            </View>
+            <View style={styles.analysisRow}>
+              <Text style={styles.emoji}>
+                {correctTajweed.tajweed.separate_tide ? '✅' : '❌'}
+              </Text>
+              <Text style={styles.emoji}>
+                {correctTajweed.tajweed.concealment ? '✅' : '❌'}
+              </Text>
+              <Text style={styles.emoji}>
+                {correctTajweed.tajweed.tight_noon ? '✅' : '❌'}
+              </Text>
+            </View>
+          </View>
+        )}
+
+        
+
 
         {/* Display Quranic Ayah */}
         <View style={styles.ayahContainer}>
           <Text style={styles.ayahText}>{ayah}</Text>
+        </View>
+
+        <View style={styles.navButtons}>
+          <TouchableOpacity onPress={goToPreviousAyah} style={styles.navButton}>
+            <Text style={styles.navButtonText}>◀</Text>
+          </TouchableOpacity>
+          <Text style={styles.navText}>{`Surah ${currentAyah.surah}, Ayah ${currentAyah.ayah}`}</Text>
+          <TouchableOpacity onPress={goToNextAyah} style={styles.navButton}>
+            <Text style={styles.navButtonText}>▶</Text>
+          </TouchableOpacity>
         </View>
 
         {/* Buttons */}
@@ -235,6 +358,7 @@
           </View>
         </Modal>
 
+        
 
       </View>
     );
@@ -252,6 +376,53 @@
       marginLeft: responsiveMargin(20),
       alignSelf: 'flex-start',
     },
+    toggleRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      width: '100%',
+      justifyContent: 'space-between', // Space between toggle and correct answer
+      paddingHorizontal: responsiveMargin(20),
+      marginTop: responsiveMargin(20),
+    },
+    correctAnswerButton: {
+      backgroundColor: '#BC6C25',
+      paddingVertical: responsiveMargin(8),
+      paddingHorizontal: responsiveMargin(16),
+      borderRadius: 10,
+    },
+    correctAnswerText: {
+      fontSize: responsiveFontSize(14),
+      fontFamily: 'Jost-SemiBold',
+      color: 'white',
+    },
+    correctAnswerContainer: {
+      marginTop: responsiveMargin(15),
+      alignItems: 'center',
+    },
+    navButtons: {
+      flexDirection: 'row', 
+      alignItems: 'center', 
+      justifyContent: 'space-between', 
+      marginVertical: responsiveMargin(20),
+      borderRadius: 8,
+      paddingVertical: responsiveMargin(8),
+      width: width / 1.5, // Adjust width for balanced layout
+      alignSelf: 'center', // Center the navigation buttons
+    },
+    navButton: {
+      padding: responsiveMargin(8),
+      borderRadius: 5,
+    },
+    navButtonText: {
+      fontSize: responsiveFontSize(30), 
+      fontWeight: 'bold',
+      color: '#4E240D', // Dark brown text for contrast
+    },
+    navText: {
+      fontSize: responsiveFontSize(16),
+      fontWeight: 'bold',
+      color: 'black',
+    },
     ayahContainer: {
       flex: 3,
       justifyContent: 'center',
@@ -259,7 +430,7 @@
       paddingHorizontal: responsiveMargin(20),
     },
     ayahText: {
-      fontSize: responsiveFontSize(50),
+      fontSize: responsiveFontSize(40),
       textAlign: 'center',
       fontWeight: 'bold',
       fontFamily: 'NotoNaskhArabic-Bold',

@@ -56,7 +56,7 @@ CREATE TABLE IF NOT EXISTS appointments (
     ulama_id INT NOT NULL,
     appointment_datetime TIMESTAMP NOT NULL,
     appointment_details TEXT,
-    chat_id VARCHAR(36) NOT NULL, 
+    chat_id VARCHAR(36) UNIQUE NOT NULL, 
     status BOOLEAN DEFAULT false,
     CONSTRAINT fk_student
       FOREIGN KEY (student_id)
@@ -113,6 +113,18 @@ CREATE TABLE IF NOT EXISTS bookmarks (
     UNIQUE (user_id, user_role, bookmarked_surah, bookmarked_ayah) -- Ensures unique bookmarks per user-role
 );
 
+-- Create "tajweed_analysis" table to store Tajweed rule analysis per Ayah
+CREATE TABLE IF NOT EXISTS tajweed_analysis (
+    id SERIAL PRIMARY KEY,              -- Auto-incrementing unique identifier
+    surah_number INT NOT NULL,          -- Surah number
+    ayah_number INT NOT NULL,           -- Ayah number
+    separate_tide BOOLEAN DEFAULT FALSE, -- Whether the Ayah has "Separate Tide"
+    concealment BOOLEAN DEFAULT FALSE,  -- Whether the Ayah has "Concealment"
+    tight_noon BOOLEAN DEFAULT FALSE,   -- Whether the Ayah has "Tight Noon"
+    UNIQUE (surah_number, ayah_number)  -- Ensure each Ayah appears only once
+);
+
+
 INSERT INTO progress (user_id, user_role, progress)
 VALUES
 (1, 'student', 120),  -- Ali Khan has completed 120 Ayahs
@@ -133,4 +145,29 @@ VALUES
 (2, 'ullama', 'Check references related to this Ayah.', 8, 45),
 (3, 'ullama', 'Prepare tafseer notes for this verse.', 9, 88);
 
+INSERT INTO tajweed_analysis (surah_number, ayah_number, separate_tide, concealment, tight_noon)
+VALUES
+-- Surah Al-Maidah (Surah 5)
+(5, 109, TRUE, TRUE, TRUE),
+
+-- Surah Al-Kawthar (Surah 108)
+(108, 1, FALSE, FALSE, TRUE), 
+(108, 2, FALSE, FALSE, FALSE), 
+(108, 3, FALSE, FALSE, TRUE),  
+
+-- Surah Al-Kafirun (Surah 109)
+(109, 1, TRUE, FALSE, FALSE),  
+(109, 2, TRUE, FALSE, FALSE),
+(109, 3, TRUE, TRUE, FALSE),
+(109, 4, TRUE, FALSE, FALSE),
+(109, 5, TRUE, TRUE, FALSE), 
+(109, 6, FALSE, FALSE, FALSE),
+
+-- Surah An-Nas (Surah 114)
+(114, 1, FALSE, FALSE, TRUE), -- قل أعوذ برب الناس
+(114, 2, FALSE, FALSE, TRUE),  -- ملك الناس
+(114, 3, FALSE, FALSE, TRUE),  -- إله الناس
+(114, 4, FALSE, TRUE, TRUE), -- من شر الوسواس الخناس
+(114, 5, FALSE, FALSE, TRUE),  -- الذي يوسوس في صدور الناس
+(114, 6, FALSE, FALSE, TRUE);  -- من الجنة والناس
 

@@ -523,7 +523,8 @@ export const SurahBox = ({ id, arabicName, romanName, place, totalAyahs, onPress
       color: '#545454',
     },
     arabicText: {
-      fontSize: responsiveFontSize(16),
+      fontSize: responsiveFontSize(18),
+      fontFamily: 'NotoNaskhArabic-Bold', // Arabic font
       fontWeight: 'bold',
       color: '#4E240D',
     },
