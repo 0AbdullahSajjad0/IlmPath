@@ -129,10 +129,19 @@ io.on('connection', (socket) => {
     }
   });
 
-  socket.on('sendMessage', ({ chatId, text, senderId, senderRole  }) => {
-    console.log(`📩 Message in chat ${chatId} from user ${senderId}: ${text}`);
-    io.to(chatId).emit('receiveMessage', { text, senderId, senderRole });
+  socket.on('sendMessage', ({ chatId, text, senderId, senderRole, audio }) => {
+    console.log("📩 New message received:", { chatId, text, senderId, senderRole, audio });
+
+    const newMessage = {
+        senderId,
+        senderRole,
+        text: text || null,  // ✅ Send null if no text
+        audio: audio || null, // ✅ Send audio if available
+    };
+
+    io.to(chatId).emit('receiveMessage', newMessage);
   });
+
 
   socket.on('endSession', async ({ chatId }) => {
     try {

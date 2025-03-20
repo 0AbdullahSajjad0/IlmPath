@@ -5,6 +5,8 @@ import { fetchNote, saveNote } from '../services/noteService';
 import { toggleBookmark, getBookmarks } from '../services/bookmarkService';
 import { Audio } from 'expo-av';
 import StaticAudioMapping from '../assets/data/StaticAudioMapping';
+import wordMeanings from '../assets/data/RootMeanings.json';
+import Modal from 'react-native-modal';
 import { useUser } from '../../context/UserContext';  // ✅ Import useUser to fetch context
 
 const RowWithAyah = ({ 
@@ -12,6 +14,10 @@ const RowWithAyah = ({
   arabicText, 
   englishText, 
   surahId, 
+  allWords, // ✅ Use this for display
+  mappedWords, // ✅ Use this for meaning lookup
+  onProgressTrack, // Callback to handle progress tracking
+  enableProgressTracking = false, // Flag to enable/disable progress tracking
   currentlyPlayingAyah,
   setCurrentlyPlayingAyah,
   removeBookmark
@@ -23,6 +29,10 @@ const RowWithAyah = ({
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentSound, setCurrentSound] = useState(null);
   const [isBookmarked, setIsBookmarked] = useState(false); // Track bookmark state
+  const [selectedWord, setSelectedWord] = useState(null); // Store the selected word
+  const [selectedMeaning, setSelectedMeaning] = useState(null); // Store the meaning of the word
+  const [isModalVisible, setIsModalVisible] = useState(false); // Modal visibility
+
 
   useEffect(() => {
     if (user && user.id && user.role) {
@@ -69,6 +79,12 @@ const RowWithAyah = ({
           setIsPlaying(false);
           setCurrentlyPlayingAyah(null);
           setActiveIcon(null);
+          console.log(`Finished playing Ayah ${ayahNumber} in Surah ${surahId}`); // ✅ Debugging
+          // ✅ Call onProgressTrack when Ayah finishes playing
+          if (enableProgressTracking  && onProgressTrack) {
+            console.log(`Tracking progress for Ayah ${ayahNumber} in Surah ${surahId}`);
+            onProgressTrack(number);
+          }
         }
       });
     } catch (error) {
@@ -102,6 +118,7 @@ const RowWithAyah = ({
     if (icon === 'play') {
       const ayahKey = `${surahId.toString().padStart(3, '0')}${number.toString().padStart(3, '0')}`;
       if (currentlyPlayingAyah && currentlyPlayingAyah !== ayahKey) {
+        setActiveIcon(null);
         alert('Please stop the currently playing Ayah before playing another one.');
         return;
       }
@@ -130,6 +147,24 @@ const RowWithAyah = ({
 
   };
 
+  // Handle Long Press on Word
+  const handleWordLongPress = (word, index) => {
+
+    console.log(`Word ${index + 1} long pressed:`, word); // ✅ Debugging
+    if (!word || word.length <= 1) return; // ✅ Skip single-letter words for mapping
+
+    // Ensure we are only looking up valid words
+    const filteredIndex = mappedWords.indexOf(word); // ✅ Get index from mapped list
+    if (filteredIndex === -1) return; // ✅ Prevent mapping single-letter words
+
+    const key = `${surahId}:${number}:${filteredIndex + 1}:1`; // Construct key for translation lookup
+    const meaning = wordMeanings[key] || "Translation not available"; // Fetch meaning
+
+    setSelectedWord(word);
+    setSelectedMeaning(meaning);
+    setIsModalVisible(true);
+  };
+
   return (
     <>
       <View style={styles.rowContainer}>
@@ -152,8 +187,21 @@ const RowWithAyah = ({
       </View>
 
       {/* Ayah with Translation */}
+      {/* Ayah with Long Press Word Selection */}
       <View style={styles.ayahContainer}>
-        <Text style={styles.arabicAyahText}>{arabicText}</Text>
+        <Text style={styles.arabicAyahText}>
+          {allWords.map((word, index) => (
+            <Text 
+              key={index} 
+              onLongPress={() => handleWordLongPress(word, index)} 
+              style={styles.wordText}
+              selectable={false} // ✅ Prevents selection
+              suppressHighlighting={true} // ✅ Removes long-press highlight
+            >
+              {word} {' '}
+            </Text>
+          ))}
+        </Text>
         <Text style={styles.englishAyahText}>{englishText}</Text>
       </View>
 
@@ -169,6 +217,20 @@ const RowWithAyah = ({
           textAlignVertical="top"
         />
       )}
+
+      {/* Modal to Display Word Meaning */}
+      <Modal visible={isModalVisible} transparent animationType="slide">
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>Word Meaning</Text>
+            <Text style={styles.selectedWord}>{selectedWord}</Text>
+            <Text style={styles.meaningText}>{selectedMeaning}</Text>
+            <TouchableOpacity onPress={() => setIsModalVisible(false)} style={styles.closeButton}>
+              <Text style={styles.closeText}>Close</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </>
   );
 };
@@ -311,7 +373,51 @@ const styles = StyleSheet.create({
       fontSize: responsiveFontSize(14),
       color: '#333',
     },
-    
+    wordText: {
+      fontSize: responsiveFontSize(18),
+      fontWeight: '600',
+      color: 'black',
+      textAlign: 'center',
+    },
+    modalContainer: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    modalContent: {
+      backgroundColor: 'white',
+      padding: responsiveMargin(20),
+      borderRadius: 10,
+      width: '80%',
+      alignItems: 'center',
+    },
+    modalTitle: {
+      fontSize: responsiveFontSize(20),
+      fontWeight: 'bold',
+      marginBottom: responsiveMargin(10),
+    },
+    selectedWord: {
+      fontSize: responsiveFontSize(18),
+      fontWeight: '600',
+      fontFamily: 'NotoNaskhArabic-Regular',
+      color: '#4E240D',
+    },
+    meaningText: {
+      fontSize: responsiveFontSize(16),
+      color: '#333',
+      marginTop: responsiveMargin(10),
+    },
+    closeButton: {
+      backgroundColor: '#BC6C25',
+      paddingVertical: responsiveMargin(10),
+      paddingHorizontal: responsiveMargin(20),
+      marginTop: responsiveMargin(20),
+      borderRadius: 5,
+    },
+    closeText: {
+      fontSize: responsiveFontSize(14),
+      color: 'white',
+    },
     
   });
   

@@ -74,15 +74,35 @@ export default function ChatbotResultScreen({ navigation, route }) {
               </ImageBackground>
 
               {/* Ayahs for this Surah */}
-              {ayahs.map((ayah) => (
+              {ayahs.map((ayah) => {
+              const extractWords = (wordString) => {
+                if (!wordString || typeof wordString !== 'string') return { allWords: [], mappedWords: [] };
+
+                const allWords = wordString
+                  .replace(/[\[\]"]/g, '')  // Remove brackets and quotes
+                  .split(',')               // Split into words
+                  .map(word => word.trim()); // Trim spaces
+
+                const mappedWords = allWords.filter(word => word.length > 1); // ✅ Remove single-letter words for mapping
+
+                return { allWords, mappedWords };
+              };
+
+              const { allWords, mappedWords } = extractWords(ayah.list_of_words);
+
+              return (
                 <RowWithAyah
                   key={ayah.ayah_no_quran}
                   number={ayah.ayah_no_surah}
                   arabicText={ayah.ayah_ar}
                   englishText={ayah.ayah_en}
                   surahId={ayah.surah_no}
+                  allWords={allWords} // ✅ Use for display
+                  mappedWords={mappedWords} // ✅ Use for meaning lookup only
                 />
-              ))}
+              );
+            })}
+
             </View>
           );
         })}

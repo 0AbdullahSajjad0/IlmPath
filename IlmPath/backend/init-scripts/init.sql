@@ -66,6 +66,23 @@ CREATE TABLE IF NOT EXISTS appointments (
         REFERENCES ulamauser(id)
 );
 
+-- Create "chat_messages" table for storing chat messages per appointment
+CREATE TABLE IF NOT EXISTS chat_messages (
+    id SERIAL PRIMARY KEY,                      -- Unique identifier for each message
+    chat_id VARCHAR(36) NOT NULL,               -- Associated chat ID from appointments
+    sender_id INT NOT NULL,                     -- User ID of the sender
+    sender_role VARCHAR(10) NOT NULL,           -- Sender role ('student' or 'ullama')
+    message_text TEXT NOT NULL,                 -- Chat message content
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Message timestamp
+    CONSTRAINT fk_chat FOREIGN KEY (chat_id) REFERENCES appointments(chat_id)
+);
+
+-- Index for faster retrieval of chat messages per appointment
+CREATE INDEX idx_chat_messages_chatId ON chat_messages (chat_id);
+
+-- Index for fetching messages by sender (improves performance for user message history)
+CREATE INDEX idx_chat_messages_senderId ON chat_messages (sender_id);
+
 CREATE TABLE IF NOT EXISTS ulama_availability (
     id SERIAL PRIMARY KEY,
     ulama_id INT NOT NULL,                 
@@ -116,11 +133,4 @@ VALUES
 (2, 'ullama', 'Check references related to this Ayah.', 8, 45),
 (3, 'ullama', 'Prepare tafseer notes for this verse.', 9, 88);
 
-INSERT INTO appointments (student_id, ulama_id, appointment_datetime, appointment_details, chat_id, status)
-VALUES
-(1, 1, '2025-03-10 15:00:00', 'Discuss Tafseer of Surah Al-Baqarah', 'chat-uuid-1', FALSE),
-(2, 2, '2025-03-11 16:30:00', 'Understanding Hadith principles', 'chat-uuid-2', FALSE),
-(3, 3, '2025-03-12 18:00:00', 'Tajweed recitation assessment', 'chat-uuid-3', FALSE),
-(4, 4, '2025-03-13 14:00:00', 'Islamic jurisprudence discussion', 'chat-uuid-4', FALSE),
-(5, 5, '2025-03-14 10:00:00', 'Hadith classification session', 'chat-uuid-5', FALSE);
 

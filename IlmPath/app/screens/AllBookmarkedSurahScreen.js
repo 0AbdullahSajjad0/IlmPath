@@ -53,6 +53,19 @@ export default function AllBookmarkedSurahScreen({ navigation }) {
     return acc;
   }, {});
 
+  const extractWords = (wordString) => {
+    if (!wordString || typeof wordString !== 'string') return { allWords: [], mappedWords: [] };
+
+    const allWords = wordString
+      .replace(/[\[\]"]/g, '')  
+      .split(',')
+      .map(word => word.trim());
+
+    const mappedWords = allWords.filter(word => word.length > 1); 
+
+    return { allWords, mappedWords };
+  };
+
   return (
     <View style={[globalStyles.container, { backgroundColor: '#F0DEAE' }]}>
       {/* Header */}
@@ -93,16 +106,22 @@ export default function AllBookmarkedSurahScreen({ navigation }) {
               </ImageBackground>
 
               {/* Ayahs for this Surah */}
-              {ayahs.map((ayah) => (
-                <RowWithAyah
-                  key={ayah.ayah_no_quran}
-                  number={ayah.ayah_no_surah}
-                  arabicText={ayah.ayah_ar}
-                  englishText={ayah.ayah_en}
-                  surahId={ayah.surah_no}
-                  removeBookmark={removeBookmark} // ✅ Pass function to remove dynamically
-                />
-              ))}
+              {ayahs.map((ayah) => {
+                const { allWords, mappedWords } = extractWords(ayah.list_of_words);
+
+                return (
+                  <RowWithAyah
+                    key={ayah.ayah_no_quran}
+                    number={ayah.ayah_no_surah}
+                    arabicText={ayah.ayah_ar}
+                    englishText={ayah.ayah_en}
+                    surahId={ayah.surah_no}
+                    allWords={allWords} // ✅ Arabic text display
+                    mappedWords={mappedWords} // ✅ Word meanings lookup
+                    removeBookmark={removeBookmark}
+                  />
+                );
+              })}
             </View>
           );
         })}

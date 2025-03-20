@@ -5,7 +5,7 @@ import { useUser } from '../../context/UserContext';
 import { getUserDetails } from '../services/profileService';
 
 export default function ProfileScreen({ navigation }) {
-    const { user } = useUser();
+    const { user, setUser  } = useUser();
     const [userName, setUserName] = useState('Guest');
     const [email, setEmail] = useState('');
 
@@ -22,6 +22,27 @@ export default function ProfileScreen({ navigation }) {
         };
         fetchUserDetails();
     }, [user]);
+
+    const handleLogout = async () => {
+        try {
+            // ✅ Clear user data from AsyncStorage (if using persistent login)
+            // await AsyncStorage.removeItem('userToken'); // If authentication is token-based
+            // await AsyncStorage.removeItem('user');
+
+            // ✅ Reset user context
+            setUser({ id: null, role: null });
+
+            // ✅ Navigate to Login Options Screen and reset navigation stack
+            navigation.reset({
+                index: 0,
+                routes: [{ name: 'Options' }],
+            });
+
+            console.log("✅ Successfully logged out.");
+        } catch (error) {
+            console.error("⚠️ Logout failed:", error);
+        }
+    };
 
     if (!user || !user.id || !user.role) {
         return (
@@ -71,7 +92,9 @@ export default function ProfileScreen({ navigation }) {
                         key={index} 
                         style={styles.optionItem}
                         onPress={() => {
-                            if (option.screen) {
+                            if (option.action === 'logout') {
+                                handleLogout(); // ✅ Calls logout function
+                            } else if (option.screen) {
                                 navigation.navigate(option.screen);
                             }
                         }}
@@ -93,7 +116,7 @@ const profileOptions = [
     { title: 'Terms and Conditions', iconLeft: <TermsAndConditionsIcon />, iconRight: <UnlockedIcon /> },
     { title: 'Help Center', iconLeft: <HelpCenterIcon />, iconRight: <UnlockedIcon /> },
     { title: 'Invite Friends', iconLeft: <InviteFriendsIcon />, iconRight: <UnlockedIcon /> },
-    { title: 'Logout', iconLeft: <LogoutIcon />, iconRight: <UnlockedIcon /> },
+    { title: 'Logout', iconLeft: <LogoutIcon />, iconRight: <UnlockedIcon />, action: 'logout' },
 ];
 
 // Styles
