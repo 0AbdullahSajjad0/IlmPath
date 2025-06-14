@@ -56,7 +56,7 @@ CREATE TABLE IF NOT EXISTS appointments (
     ulama_id INT NOT NULL,
     appointment_datetime TIMESTAMP NOT NULL,
     appointment_details TEXT,
-    chat_id VARCHAR(36) NOT NULL, 
+    chat_id VARCHAR(36) UNIQUE NOT NULL, 
     status BOOLEAN DEFAULT false,
     CONSTRAINT fk_student
       FOREIGN KEY (student_id)
@@ -65,6 +65,23 @@ CREATE TABLE IF NOT EXISTS appointments (
       FOREIGN KEY (ulama_id)
         REFERENCES ulamauser(id)
 );
+
+-- Create "chat_messages" table for storing chat messages per appointment
+CREATE TABLE IF NOT EXISTS chat_messages (
+    id SERIAL PRIMARY KEY,                      -- Unique identifier for each message
+    chat_id VARCHAR(36) NOT NULL,               -- Associated chat ID from appointments
+    sender_id INT NOT NULL,                     -- User ID of the sender
+    sender_role VARCHAR(10) NOT NULL,           -- Sender role ('student' or 'ullama')
+    message_text TEXT NOT NULL,                 -- Chat message content
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Message timestamp
+    CONSTRAINT fk_chat FOREIGN KEY (chat_id) REFERENCES appointments(chat_id)
+);
+
+-- Index for faster retrieval of chat messages per appointment
+CREATE INDEX idx_chat_messages_chatId ON chat_messages (chat_id);
+
+-- Index for fetching messages by sender (improves performance for user message history)
+CREATE INDEX idx_chat_messages_senderId ON chat_messages (sender_id);
 
 CREATE TABLE IF NOT EXISTS ulama_availability (
     id SERIAL PRIMARY KEY,
@@ -85,6 +102,27 @@ CREATE TABLE IF NOT EXISTS ulama_availability (
 CREATE INDEX idx_ulama_availability_day ON ulama_availability (ulama_id, day_of_week);
 CREATE INDEX idx_ulama_availability_date ON ulama_availability (ulama_id, specific_date);
 
+-- Create "bookmarks" table to store user-specific Ayah bookmarks
+CREATE TABLE IF NOT EXISTS bookmarks (
+    id SERIAL PRIMARY KEY,              -- Auto-incrementing unique identifier
+    user_id INT NOT NULL,               -- User identifier
+    user_role VARCHAR(10) NOT NULL,     -- Role to distinguish between student and ulama
+    bookmarked_surah INT NOT NULL,      -- Surah number of the bookmarked Ayah
+    bookmarked_ayah INT NOT NULL,       -- Ayah number being bookmarked
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Timestamp for when the bookmark was created
+    UNIQUE (user_id, user_role, bookmarked_surah, bookmarked_ayah) -- Ensures unique bookmarks per user-role
+);
+
+-- Create "tajweed_analysis" table to store Tajweed rule analysis per Ayah
+CREATE TABLE IF NOT EXISTS tajweed_analysis (
+    id SERIAL PRIMARY KEY,              -- Auto-incrementing unique identifier
+    surah_number INT NOT NULL,          -- Surah number
+    ayah_number INT NOT NULL,           -- Ayah number
+    separate_tide BOOLEAN DEFAULT FALSE, -- Whether the Ayah has "Separate Tide"
+    concealment BOOLEAN DEFAULT FALSE,  -- Whether the Ayah has "Concealment"
+    tight_noon BOOLEAN DEFAULT FALSE,   -- Whether the Ayah has "Tight Noon"
+    UNIQUE (surah_number, ayah_number)  -- Ensure each Ayah appears only once
+);
 
 
 INSERT INTO progress (user_id, user_role, progress)
@@ -95,22 +133,6 @@ VALUES
 (1, 'ullama', 6236),   -- Dr. Abdul Rehman has completed the entire Quran
 (2, 'ullama', 5001),   -- Mufti Saad Ali has completed 5000 Ayahs
 (3, 'ullama', 4500);   -- Ustadha Fatima Zahra has completed 4500 Ayahs
-
-INSERT INTO studentuser (name, nickName, email, password, DOB, phoneNo, gender)
-VALUES
-('Ali Khan', 'Ali', 'ali.khan@example.com', '12345678', '2000-05-10', '+923001234567', 'Male'),
-('Ayesha Ahmed', 'Ayesha', 'ayesha.ahmed@example.com', '12345678', '1998-08-25', '+923112345678', 'Female'),
-('Omar Farooq', 'Omar', 'omar.farooq@example.com', '12345678', '2001-11-15', '+923221234567', 'Male'),
-('Zara Malik', 'Zara', 'zara.malik@example.com', '12345678', '1999-04-22', '+923331234567', 'Female'),
-('Bilal Hussain', 'Bilal', 'bilal.hussain@example.com', '12345678', '2002-07-05', '+923441234567', 'Male');
-
-INSERT INTO ulamauser (name, expertise, email, password, DOB, phoneNo, gender, certificateImage, verified)
-VALUES
-('Dr. Abdul Rehman', 'Quranic Tafseer', 'abdul.rehman@example.com', '12345678', '1980-03-12', '+923551234567', 'Male', 'https://example.com/certificates/abdul.jpg', TRUE),
-('Mufti Saad Ali', 'Hadith and Fiqh', 'mufti.saad@example.com', '12345678', '1975-06-19', '+923661234567', 'Male', 'https://example.com/certificates/saad.jpg', TRUE),
-('Ustadha Fatima Zahra', 'Tajweed and Arabic Grammar', 'fatima.zahra@example.com', '12345678', '1988-09-30', '+923771234567', 'Female', 'https://example.com/certificates/fatima.jpg', TRUE),
-('Sheikh Ahmed Raza', 'Islamic Jurisprudence', 'ahmed.raza@example.com', '12345678', '1983-01-05', '+923881234567', 'Male', 'https://example.com/certificates/ahmed.jpg', TRUE),
-('Mufti Imran Qasim', 'Hadith Science', 'imran.qasim@example.com', '12345678', '1990-12-15', '+923991234567', 'Male', 'https://example.com/certificates/imran.jpg', FALSE);
 
 INSERT INTO notes (user_id, user_role, note_text, note_surrah, note_ayah)
 VALUES
@@ -123,11 +145,29 @@ VALUES
 (2, 'ullama', 'Check references related to this Ayah.', 8, 45),
 (3, 'ullama', 'Prepare tafseer notes for this verse.', 9, 88);
 
-INSERT INTO appointments (student_id, ulama_id, appointment_datetime, appointment_details, chat_id, status)
+INSERT INTO tajweed_analysis (surah_number, ayah_number, separate_tide, concealment, tight_noon)
 VALUES
-(1, 1, '2025-03-10 15:00:00', 'Discuss Tafseer of Surah Al-Baqarah', 'chat-uuid-1', FALSE),
-(2, 2, '2025-03-11 16:30:00', 'Understanding Hadith principles', 'chat-uuid-2', FALSE),
-(3, 3, '2025-03-12 18:00:00', 'Tajweed recitation assessment', 'chat-uuid-3', FALSE),
-(4, 4, '2025-03-13 14:00:00', 'Islamic jurisprudence discussion', 'chat-uuid-4', FALSE),
-(5, 5, '2025-03-14 10:00:00', 'Hadith classification session', 'chat-uuid-5', FALSE);
+-- Surah Al-Maidah (Surah 5)
+(5, 109, TRUE, TRUE, TRUE),
+
+-- Surah Al-Kawthar (Surah 108)
+(108, 1, FALSE, FALSE, TRUE), 
+(108, 2, FALSE, FALSE, FALSE), 
+(108, 3, FALSE, FALSE, TRUE),  
+
+-- Surah Al-Kafirun (Surah 109)
+(109, 1, TRUE, FALSE, FALSE),  
+(109, 2, TRUE, FALSE, FALSE),
+(109, 3, TRUE, TRUE, FALSE),
+(109, 4, TRUE, FALSE, FALSE),
+(109, 5, TRUE, TRUE, FALSE), 
+(109, 6, FALSE, FALSE, FALSE),
+
+-- Surah An-Nas (Surah 114)
+(114, 1, FALSE, FALSE, TRUE), -- قل أعوذ برب الناس
+(114, 2, FALSE, FALSE, TRUE),  -- ملك الناس
+(114, 3, FALSE, FALSE, TRUE),  -- إله الناس
+(114, 4, FALSE, TRUE, TRUE), -- من شر الوسواس الخناس
+(114, 5, FALSE, FALSE, TRUE),  -- الذي يوسوس في صدور الناس
+(114, 6, FALSE, FALSE, TRUE);  -- من الجنة والناس
 

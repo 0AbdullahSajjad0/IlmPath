@@ -122,6 +122,7 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-end',
     fontSize: responsiveFontSize(18),
     fontWeight: '600',
+    fontFamily: 'NotoNaskhArabic-Regular', 
     color: 'black', // Darker color for Arabic text
     textAlign: 'center',
     marginBottom: responsiveMargin(20), // Space between Arabic and English text

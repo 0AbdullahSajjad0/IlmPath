@@ -417,6 +417,18 @@ export const MicIcon = () => (
   </View>
 );
 
+export const SendIcon = () => (
+  <View>
+    <Svg width="22" height="18" viewBox="0 0 22 18" fill="none">
+      <Path
+        d="M2.51 3.03L10.02 6.25L2.5 5.25L2.51 3.03ZM10.01 11.75L2.5 14.97V12.75L10.01 11.75ZM0.51 0L0.5 7L15.5 9L0.5 11L0.51 18L21.5 9L0.51 0Z"
+        fill="#F0DEAE" // Change color based on focus
+        style={[globalStyles.icon, globalStyles.backIcon]}
+      />
+    </Svg>
+  </View>
+);
+
 // Reusable Component
 export const SurahBox = ({ id, arabicName, romanName, place, totalAyahs, onPress }) => (
   <TouchableOpacity style={{width:width}} onPress={() => onPress(id)}>
@@ -511,7 +523,8 @@ export const SurahBox = ({ id, arabicName, romanName, place, totalAyahs, onPress
       color: '#545454',
     },
     arabicText: {
-      fontSize: responsiveFontSize(16),
+      fontSize: responsiveFontSize(18),
+      fontFamily: 'NotoNaskhArabic-Bold', // Arabic font
       fontWeight: 'bold',
       color: '#4E240D',
     },

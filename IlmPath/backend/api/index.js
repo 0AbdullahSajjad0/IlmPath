@@ -1,7 +1,7 @@
 const express = require("express");
 const http = require("http");
 const { Server } = require("socket.io");
-const { Pool } = require("pg");
+const pool = require("./db");
 const cors = require("cors");
 const multer = require("multer");
 const Stripe = require('stripe');
@@ -19,31 +19,6 @@ app.use(express.json());
 
 // Debugging Server Startup
 console.log("Starting the application...");
-
-
-
-// Environment Validation
-const requiredEnvVars = ["JWT_SECRET", "POSTGRES_USER", "POSTGRES_PASSWORD", "POSTGRES_DB"];
-requiredEnvVars.forEach((env) => {
-  if (!process.env[env]) {
-    console.error(`Environment variable ${env} is missing.`);
-  }
-});
-
-// Database Pool
-let pool;
-try {
-  pool = new Pool({
-    user: process.env.POSTGRES_USER || "myuser",
-    host: process.env.POSTGRES_HOST || "postgres",
-    database: process.env.POSTGRES_DB || "mydatabase",
-    password: process.env.POSTGRES_PASSWORD || "mypassword",
-    port: process.env.POSTGRES_PORT || 5432,
-  });
-  console.log("Database connection initialized.");
-} catch (err) {
-  console.error("Error initializing database connection:", err);
-}
 
 const io = new Server(server, {
   cors: {
@@ -129,10 +104,19 @@ io.on('connection', (socket) => {
     }
   });
 
-  socket.on('sendMessage', ({ chatId, text, senderId, senderRole  }) => {
-    console.log(`📩 Message in chat ${chatId} from user ${senderId}: ${text}`);
-    io.to(chatId).emit('receiveMessage', { text, senderId, senderRole });
+  socket.on('sendMessage', ({ chatId, text, senderId, senderRole, audio }) => {
+    console.log("📩 New message received:", { chatId, text, senderId, senderRole, audio });
+
+    const newMessage = {
+        senderId,
+        senderRole,
+        text: text || null,  // ✅ Send null if no text
+        audio: audio || null, // ✅ Send audio if available
+    };
+
+    io.to(chatId).emit('receiveMessage', newMessage);
   });
+
 
   socket.on('endSession', async ({ chatId }) => {
     try {
@@ -950,7 +934,90 @@ app.post('/endAppointment', async (req, res) => {
 });
 
 
+app.post("/toggleBookmark", async (req, res) => {
+  const { user_id, user_role, bookmarked_surah, bookmarked_ayah } = req.body;
 
+  if (!user_id || !user_role || !bookmarked_surah || !bookmarked_ayah) {
+    return res.status(400).json({ message: "All fields are required." });
+  }
+
+  try {
+    // Check if the bookmark already exists
+    const existingBookmark = await pool.query(
+      "SELECT id FROM bookmarks WHERE user_id = $1 AND user_role = $2 AND bookmarked_surah = $3 AND bookmarked_ayah = $4",
+      [user_id, user_role, bookmarked_surah, bookmarked_ayah]
+    );
+
+    if (existingBookmark.rows.length > 0) {
+      // If exists, remove the bookmark
+      await pool.query("DELETE FROM bookmarks WHERE id = $1", [existingBookmark.rows[0].id]);
+      return res.status(200).json({ message: "Bookmark removed successfully", bookmarked: false });
+    } else {
+      // Otherwise, add a new bookmark
+      await pool.query(
+        "INSERT INTO bookmarks (user_id, user_role, bookmarked_surah, bookmarked_ayah) VALUES ($1, $2, $3, $4)",
+        [user_id, user_role, bookmarked_surah, bookmarked_ayah]
+      );
+      return res.status(201).json({ message: "Bookmark added successfully", bookmarked: true });
+    }
+  } catch (error) {
+    console.error("Error toggling bookmark:", error);
+    res.status(500).json({ message: "Internal server error." });
+  }
+});
+
+app.post("/getBookmarks", async (req, res) => {
+  const { user_id, user_role } = req.body;
+
+  if (!user_id || !user_role) {
+    return res.status(400).json({ message: "User ID and role are required." });
+  }
+
+  try {
+    const result = await pool.query(
+      "SELECT bookmarked_surah, bookmarked_ayah FROM bookmarks WHERE user_id = $1 AND user_role = $2",
+      [user_id, user_role]
+    );
+
+    return res.status(200).json({
+      message: "Bookmarks retrieved successfully",
+      bookmarks: result.rows,
+    });
+  } catch (error) {
+    console.error("Error retrieving bookmarks:", error);
+    res.status(500).json({ message: "Internal server error." });
+  }
+});
+
+// 📌 GET Tajweed Analysis for a Specific Surah and Ayah
+app.get("/getTajweedAnalysis", async (req, res) => {
+  const { surah_number, ayah_number } = req.query;
+
+  if (!surah_number || !ayah_number) {
+    return res.status(400).json({ message: "Surah number and Ayah number are required." });
+  }
+
+  try {
+    const result = await pool.query(
+      `SELECT separate_tide, concealment, tight_noon
+       FROM tajweed_analysis 
+       WHERE surah_number = $1 AND ayah_number = $2`,
+      [surah_number, ayah_number]
+    );
+
+    if (result.rows.length > 0) {
+      return res.status(200).json({
+        message: "Tajweed analysis retrieved successfully",
+        tajweed: result.rows[0],
+      });
+    } else {
+      return res.status(404).json({ message: "No Tajweed analysis found for this Ayah." });
+    }
+  } catch (error) {
+    console.error("Error retrieving Tajweed analysis:", error);
+    res.status(500).json({ message: "Internal server error." });
+  }
+});
 
 
 

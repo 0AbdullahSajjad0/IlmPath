@@ -28,7 +28,7 @@
     },
     "entryPoint": "./App.js",
     "assetBundlePatterns": [
-      "app/assets/data/*"
+      "**/*"
     ],
     "plugins": [
       [

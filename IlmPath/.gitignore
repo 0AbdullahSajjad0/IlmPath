@@ -8,6 +8,12 @@ node_modules/
 dist/
 web-build/
 
+# Python
+__pycache__/
+*.pyc
+venv/
+.env
+
 # Native
 *.orig.*
 *.jks

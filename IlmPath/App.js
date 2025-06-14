@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 import * as SplashScreen from 'expo-splash-screen';
 import { UserProvider } from './context/UserContext';
 import { NavigationContainer } from '@react-navigation/native';
@@ -7,6 +7,9 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { StripeProvider } from '@stripe/stripe-react-native'; 
 import { Asset } from 'expo-asset';
 import { useFonts } from 'expo-font';
+import { Audio } from 'expo-av';
+
+
 
 import LoginOptionsScreen from './app/screens/LoginOptionsScreen';
 import EmailSignIn from './app/screens/EmailSignIn';
@@ -14,16 +17,20 @@ import SignUpScreen from './app/screens/SignUpScreen';
 import StudentSignUp from './app/screens/StudentSignUp';
 import UllamaSignUp from './app/screens/UllamaSignUp';
 import ChatbotScreen from './app/screens/ChatbotScreen';
+import ChatbotResultScreen from './app/screens/ChatbotResultScreen';
 import SurahFinderScreen from './app/screens/SurahFinderScreen';
 import ReadSurah from './app/screens/ReadSurah';
 import DailyRecitationScreen from './app/screens/DailyRecitationScreen';
 import AllSurahListScreen from './app/screens/AllSurahListScreen';
 import LessonsScreen from './app/screens/LessonsScreen';
+import LessonDetailScreen from './app/screens/LessonDetailScreen';
+import QiratTestScreen from './app/screens/QiratTestScreen';
 import OpenSessionScreen from './app/screens/OpenSessionScreen';
 import EditSessions from './app/screens/EditSessions';
 import UllamaList from './app/screens/UllamaList';
 import UllamaDescriptionScreen from './app/screens/UllamaDescriptionScreen';
 import BookAppointmentScreen from './app/screens/BookAppointmentScreen';
+import AllBookmarkedSurahScreen from './app/screens/AllBookmarkedSurahScreen';
 import BottomTabNavigator from './app/navigation/BottomTabNavigator';
 
 
@@ -34,7 +41,7 @@ const Stack = createNativeStackNavigator();
 
 
 export default function App() {
-  const [isReady, setIsReady] = React.useState(false);
+  const [isReady, setIsReady] = useState(false);
 
   const [fontsLoaded] = useFonts({
     'Atma-Bold': require('./app/assets/fonts/Atma-Bold.ttf'),
@@ -44,10 +51,10 @@ export default function App() {
     'NotoNaskhArabic-Bold': require('./app/assets/fonts/NotoNaskhArabic-Bold.ttf'),
   });
 
-  const [dataLoaded] = require('./app/assets/data/QuranDataInJson.json');
+  const dataLoaded = require('./app/assets/data/QuranDataInJson.json');
 
 
-  React.useEffect(() => {
+  useEffect(() => {
     async function loadResources() {
       try {
         // Load image and fonts in parallel
@@ -88,16 +95,20 @@ export default function App() {
 
           <Stack.Screen name="HomeTabs" component={BottomTabNavigator} />
           <Stack.Screen name="Chatbot" component={ChatbotScreen} />
+          <Stack.Screen name="ChatbotResult" component={ChatbotResultScreen} />
           <Stack.Screen name="SurahFinder" component={SurahFinderScreen} />
           <Stack.Screen name="ReadSurah" component={ReadSurah} />  
           <Stack.Screen name="SurahList" component={AllSurahListScreen} />
           <Stack.Screen name="DailyRecitationScreen" component={DailyRecitationScreen} />
           <Stack.Screen name="LessonsScreen" component={LessonsScreen} />
+          <Stack.Screen name="LessonDetailScreen" component={LessonDetailScreen} />
+          <Stack.Screen name="QiratTestScreen" component={QiratTestScreen} />
           <Stack.Screen name="OpenSession" component={OpenSessionScreen} options={{gestureEnabled: false,headerBackVisible: false,}} />
           <Stack.Screen name="EditSessions" component={EditSessions} />
           <Stack.Screen name="UllamaList" component={UllamaList} />
           <Stack.Screen name="UllamaDescription" component={UllamaDescriptionScreen} />
           <Stack.Screen name="BookAppointment" component={BookAppointmentScreen}/>  
+          <Stack.Screen name="BookmarkedSurahs" component={AllBookmarkedSurahScreen} />
 
         </Stack.Navigator>
       </NavigationContainer>

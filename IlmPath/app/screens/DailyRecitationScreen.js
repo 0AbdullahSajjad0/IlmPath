@@ -37,7 +37,18 @@ export default function DailyRecitationScreen({ navigation, route }) {
 
   const bismillah = QuranData[0].ayah_ar;
 
-  
+  const extractWords = (wordString) => {
+    if (!wordString || typeof wordString !== 'string') return { allWords: [], mappedWords: [] };
+
+    const allWords = wordString
+      .replace(/[\[\]"]/g, '')  
+      .split(',')
+      .map(word => word.trim());
+
+    const mappedWords = allWords.filter(word => word.length > 1); 
+
+    return { allWords, mappedWords };
+  };
 
   return (
     <View style={[globalStyles.container, {backgroundColor: '#F0DEAE'}]}>
@@ -86,25 +97,32 @@ export default function DailyRecitationScreen({ navigation, route }) {
                 </View>
             </ImageBackground>
 
-            {nextThreeAyahs.map((ayah, index) => (
-                <RowWithAyah
-                  key={ayah.ayah_no_quran}
-                  number={ayah.ayah_no_surah}
-                  arabicText={ayah.ayah_ar}
-                  englishText={ayah.ayah_en}
-                  surahId={ayah.surah_no}
-                  user={user}
-                  currentlyPlayingAyah={currentlyPlayingAyah}
-                  setCurrentlyPlayingAyah={setCurrentlyPlayingAyah}
-                  enableProgressTracking={true}
-                  onProgressTrack={async (ayahNumber) => {
-                    if (!incrementedAyahs[ayahNumber]) {
-                      await trackProgress({ user_id: user.id, role: user.role });
-                      setIncrementedAyahs((prev) => ({ ...prev, [ayahNumber]: true }));
-                    }
-                  }}
-                />
-            ))}            
+            {/* Ayahs for this Surah */}  
+            {nextThreeAyahs.map((ayah) => {
+          const { allWords, mappedWords } = extractWords(ayah.list_of_words);
+
+          return (
+            <RowWithAyah
+              key={ayah.ayah_no_quran}
+              number={ayah.ayah_no_surah}
+              arabicText={ayah.ayah_ar}
+              englishText={ayah.ayah_en}
+              surahId={ayah.surah_no}
+              allWords={allWords} // ✅ For displaying full Arabic text
+              mappedWords={mappedWords} // ✅ For word meanings lookup
+              currentlyPlayingAyah={currentlyPlayingAyah}
+              setCurrentlyPlayingAyah={setCurrentlyPlayingAyah}
+              enableProgressTracking={true}
+              onProgressTrack={async (ayahNumber) => {
+                if (!incrementedAyahs[ayahNumber]) {
+                  await trackProgress({ user_id: user.id, role: user.role });
+                  setIncrementedAyahs((prev) => ({ ...prev, [ayahNumber]: true }));
+                }
+              }}
+            />
+          );
+        })}
+     
 
 
         </ScrollView>
