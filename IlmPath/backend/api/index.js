@@ -1,7 +1,7 @@
 const express = require("express");
 const http = require("http");
 const { Server } = require("socket.io");
-const { Pool } = require("pg");
+const pool = require("./db");
 const cors = require("cors");
 const multer = require("multer");
 const Stripe = require('stripe');
@@ -19,31 +19,6 @@ app.use(express.json());
 
 // Debugging Server Startup
 console.log("Starting the application...");
-
-
-
-// Environment Validation
-const requiredEnvVars = ["JWT_SECRET", "POSTGRES_USER", "POSTGRES_PASSWORD", "POSTGRES_DB"];
-requiredEnvVars.forEach((env) => {
-  if (!process.env[env]) {
-    console.error(`Environment variable ${env} is missing.`);
-  }
-});
-
-// Database Pool
-let pool;
-try {
-  pool = new Pool({
-    user: process.env.POSTGRES_USER || "myuser",
-    host: process.env.POSTGRES_HOST || "postgres",
-    database: process.env.POSTGRES_DB || "mydatabase",
-    password: process.env.POSTGRES_PASSWORD || "mypassword",
-    port: process.env.POSTGRES_PORT || 5432,
-  });
-  console.log("Database connection initialized.");
-} catch (err) {
-  console.error("Error initializing database connection:", err);
-}
 
 const io = new Server(server, {
   cors: {

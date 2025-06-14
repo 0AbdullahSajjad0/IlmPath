@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 import * as SplashScreen from 'expo-splash-screen';
 import { UserProvider } from './context/UserContext';
 import { NavigationContainer } from '@react-navigation/native';
@@ -7,6 +7,9 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { StripeProvider } from '@stripe/stripe-react-native'; 
 import { Asset } from 'expo-asset';
 import { useFonts } from 'expo-font';
+import { Audio } from 'expo-av';
+
+
 
 import LoginOptionsScreen from './app/screens/LoginOptionsScreen';
 import EmailSignIn from './app/screens/EmailSignIn';
@@ -38,7 +41,7 @@ const Stack = createNativeStackNavigator();
 
 
 export default function App() {
-  const [isReady, setIsReady] = React.useState(false);
+  const [isReady, setIsReady] = useState(false);
 
   const [fontsLoaded] = useFonts({
     'Atma-Bold': require('./app/assets/fonts/Atma-Bold.ttf'),
@@ -48,10 +51,10 @@ export default function App() {
     'NotoNaskhArabic-Bold': require('./app/assets/fonts/NotoNaskhArabic-Bold.ttf'),
   });
 
-  const [dataLoaded] = require('./app/assets/data/QuranDataInJson.json');
+  const dataLoaded = require('./app/assets/data/QuranDataInJson.json');
 
 
-  React.useEffect(() => {
+  useEffect(() => {
     async function loadResources() {
       try {
         // Load image and fonts in parallel

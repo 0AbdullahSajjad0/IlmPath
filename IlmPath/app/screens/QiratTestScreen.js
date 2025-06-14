@@ -134,7 +134,7 @@
           setIsRecording(false);
 
           // ✅ Play recorded audio
-          await playAudio(uri);
+          //await playAudio(uri);
         } catch (error) {
           console.error('Error stopping recording:', error);
         }

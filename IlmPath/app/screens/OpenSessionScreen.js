@@ -121,6 +121,16 @@ export default function OpenSessionScreen({ navigation, route }) {
     return () => {
       socket.off('receiveMessage');
       socket.off('sessionEnded');
+
+        Audio.setAudioModeAsync({
+        allowsRecordingIOS: false, // 🔁 turn off recording mode
+        playsInSilentModeIOS: true,
+        shouldDuckAndroid: false,
+        staysActiveInBackground: false,
+        playThroughEarpieceAndroid: false
+      }).then(() => {
+        console.log("🔊 Audio mode reset to speaker after session.");
+      });
     };
   }, []);
   
@@ -162,10 +172,18 @@ export default function OpenSessionScreen({ navigation, route }) {
             setIsRecording(true);
 
             // ✅ Set Audio Mode for iOS before recording
-            await Audio.setAudioModeAsync({
+            /*await Audio.setAudioModeAsync({
               allowsRecordingIOS: true,  // ✅ Enable recording
               playsInSilentModeIOS: true,
               staysActiveInBackground: true
+
+            });*/
+            await Audio.setAudioModeAsync({
+              allowsRecordingIOS: true,
+              playsInSilentModeIOS: true,
+              staysActiveInBackground: true,
+              shouldDuckAndroid: false,
+              playThroughEarpieceAndroid: false,
             });
 
             const { granted } = await Audio.requestPermissionsAsync();
@@ -371,6 +389,13 @@ const playAudio = async (audioBase64) => {
       console.error("Error: Received empty Base64 audio data");
       return;
     }
+
+    await Audio.setAudioModeAsync({
+      allowsRecordingIOS: false, // Ensures audio is routed to speaker
+      playsInSilentModeIOS: true,
+      shouldDuckAndroid: false,
+      playThroughEarpieceAndroid: false,
+    });
 
     console.log("Received Base64 audio:", audioBase64.substring(0, 100)); // Log first 100 characters for debugging
 

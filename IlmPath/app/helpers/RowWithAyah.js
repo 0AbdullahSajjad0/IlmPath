@@ -174,13 +174,13 @@ const RowWithAyah = ({
 
         {/* Icons */}
         <View style={styles.iconsContainer}>
-          <TouchableOpacity style={[styles.iconWrapper, activeIcon === 'note' && styles.activeIconWrapper]} onPress={() => handleIconPress('note')}>
+          <TouchableOpacity testID="note-icon" style={[styles.iconWrapper, activeIcon === 'note' && styles.activeIconWrapper]} onPress={() => handleIconPress('note')}>
             <NoteIcon />
           </TouchableOpacity>
-          <TouchableOpacity style={[styles.iconWrapper, activeIcon === 'play' && styles.activeIconWrapper]} onPress={() => handleIconPress('play')}>
+          <TouchableOpacity testID="play-icon" style={[styles.iconWrapper, activeIcon === 'play' && styles.activeIconWrapper]} onPress={() => handleIconPress('play')}>
             <PlayIcon />
           </TouchableOpacity>
-          <TouchableOpacity style={[styles.iconWrapper, isBookmarked && styles.activeIconWrapper]} onPress={() => handleIconPress('bookmark')}>
+          <TouchableOpacity testID="bookmark-icon" style={[styles.iconWrapper, isBookmarked && styles.activeIconWrapper]} onPress={() => handleIconPress('bookmark')}>
             <BookmarkIcon filled={isBookmarked} />
           </TouchableOpacity>
         </View>
