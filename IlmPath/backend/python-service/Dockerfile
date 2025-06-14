@@ -24,4 +24,4 @@ EOF
 RUN mkdir -p uploads
 EXPOSE 8000
 
-CMD ["bash","-c","gunicorn app:app --bind 0.0.0.0:${PORT:-8000} --log-level debug"]
+CMD ["gunicorn","app:app", "--bind","0.0.0.0:${PORT:-8000}", "--workers","1", "--preload","false", "--log-level","info"]
