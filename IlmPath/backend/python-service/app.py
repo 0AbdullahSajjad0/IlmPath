@@ -126,7 +126,11 @@ def preprocess_and_save(file_path, processed_file="processed_dataset.pkl"):
 DATASET_PATH = "The Quran Dataset.csv"
 print("DEBUG: About to preprocess dataset...", flush=True)
 print("DEBUG: Checking if file exists:", os.path.exists("The Quran Dataset.csv"), flush=True)
-df_global = preprocess_and_save(DATASET_PATH, "processed_dataset.pkl")
+try:
+    df_global = preprocess_and_save(DATASET_PATH, "processed_dataset.pkl")
+except Exception as e:
+    print("❌ CRITICAL ERROR: Failed to load dataset:", str(e), flush=True)
+    sys.exit(1)
 print("DEBUG: Dataset loaded and processed successfully", flush=True)
 
 
