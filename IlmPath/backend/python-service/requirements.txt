@@ -8,3 +8,4 @@ nltk
 faiss-cpu
 pydub
 simple_colors
+gunicorn
