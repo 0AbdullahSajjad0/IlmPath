@@ -5,21 +5,23 @@ RUN apt-get update && apt-get install -y curl ffmpeg && rm -rf /var/lib/apt/list
 
 ENV TRANSFORMERS_CACHE=/app/cache \
     NLTK_DATA=/usr/local/nltk_data
+RUN mkdir -p /app/cache
 
 COPY requirements.txt .
 RUN pip install --upgrade pip && pip install --default-timeout=8000 -r requirements.txt
 
 COPY . .
 
-RUN mkdir -p /usr/local/nltk_data \
-    && python - <<'PY' \
-    import nltk; nltk.download('punkt', download_dir='/usr/local/nltk_data'); \
-    nltk.download('punkt_tab', download_dir='/usr/local/nltk_data') \
-    PY
+# download punkt + punkt_tab
+RUN python - <<'EOF'
+import nltk, os
+target = '/usr/local/nltk_data'
+os.makedirs(target, exist_ok=True)
+nltk.download('punkt', download_dir=target)
+nltk.download('punkt_tab', download_dir=target)
+EOF
 
 RUN mkdir -p uploads
-
 EXPOSE 8000
 
-# bind to $PORT if Render gives one, otherwise 8000; log at debug level
 CMD ["bash","-c","gunicorn app:app --bind 0.0.0.0:${PORT:-8000} --log-level debug"]
