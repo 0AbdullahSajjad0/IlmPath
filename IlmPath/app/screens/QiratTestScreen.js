@@ -5,6 +5,7 @@
     Image,
     TouchableOpacity,
     StyleSheet,
+    ActivityIndicator,
     Alert,
   } from 'react-native';
   import ToggleSwitch from 'toggle-switch-react-native';
@@ -39,6 +40,8 @@
     const [isModalVisible, setModalVisible] = useState(false);
     const [analysisResult, setAnalysisResult] = useState(null);
     const [correctTajweed, setCorrectTajweed] = useState(null);
+    const [isLoading, setIsLoading]   = useState(false); 
+    const [showResultNext, setShowResultNext] = useState(false);
     const [showCorrectAnswer, setShowCorrectAnswer] = useState(false);
     const [currentAyahIndex, setCurrentAyahIndex] = useState(0); // Track current Ayah index
 
@@ -163,6 +166,9 @@
         return;
       }
 
+      setIsLoading(true); 
+      setModalVisible(false); 
+
       try {
         const response = await sendAudioForTajweedAnalysis(audioUri);
         console.log('🔹 API Response:', response);
@@ -175,13 +181,16 @@
             concealment: getEmoji(response.label_concealment),
             tightNoon: getEmoji(response.label_tight_noon),
           });
-          setModalVisible(true);
+          
         } else {
           Alert.alert('Analysis Failed', 'No valid results returned.');
         }
       } catch (error) {
         console.error('🚨 Error fetching Tajweed analysis:', error);
         Alert.alert('Error', 'Failed to analyze Tajweed. Please try again.');
+      } finally {
+        setIsLoading(false);
+        setShowResultNext(true);
       }
     };
     
@@ -326,6 +335,25 @@
           </TouchableOpacity>
         </View>
 
+        {/* 🔄 Loading overlay */}
+        <Modal isVisible={isLoading}
+              animationIn="fadeIn"
+              animationOut="fadeOut"
+              backdropOpacity={0.3}
+              onModalHide={() => {
+                // loader is completely gone -> safe to show result
+                if (showResultNext) {
+                  setShowResultNext(false);
+                  setModalVisible(true);
+                }
+              }}
+              style={{ margin: 0, justifyContent: 'center', alignItems: 'center' }}>
+          <View style={styles.loaderBox}>
+            <ActivityIndicator size="large" color="#BC6C25" />
+            <Text style={styles.loaderText}>Analyzing…</Text>
+          </View>
+        </Modal>
+
         {/* Styled Modal for Tajweed Analysis */}
         <Modal isVisible={isModalVisible} animationIn="slideInUp" animationOut="slideOutDown">
           <View style={styles.modalContainer}>
@@ -340,11 +368,11 @@
                   <Text style={styles.analysisHeader}>Tight Noon</Text>
                 </View>
 
-                {/* Second Row: Emojis */}
+                {/* Second Row: Emojis*/}
                 <View style={styles.analysisRow}>
                   <Text style={styles.emoji}>{analysisResult.separateTide}</Text>
                   <Text style={styles.emoji}>{analysisResult.concealment}</Text>
-                  <Text style={styles.emoji}>{analysisResult.tightNoon}</Text>
+                  <Text style={styles.emoji}>{analysisResult.tightNoon}</Text> 
                 </View>
 
                 {/* Third Row: Confidence Score */}
