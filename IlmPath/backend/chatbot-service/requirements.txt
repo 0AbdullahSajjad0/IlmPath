@@ -1,6 +1,8 @@
 flask
-sentence-transformers>=2.3        # real upstream package (has .quantize)
-torch>=2.0,<2.3, +CPU             # any recent CPU-only wheel
+# sentence-transformers ≥ 2.3 includes the .quantize() helper
+sentence-transformers>=2.3
+# any recent CPU-only wheel from PyPI; CPU is the default, so no suffix needed
+torch>=2.0,<2.3
 faiss-cpu==1.11.0
 numpy
 gunicorn
