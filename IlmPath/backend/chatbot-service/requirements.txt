@@ -1,5 +1,6 @@
 flask
-sentence-transformers==4.1.0
+sentence-transformers>=2.3        # real upstream package (has .quantize)
+torch>=2.0,<2.3, +CPU             # any recent CPU-only wheel
 faiss-cpu==1.11.0
 numpy
 gunicorn
