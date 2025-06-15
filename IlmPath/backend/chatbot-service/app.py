@@ -21,11 +21,12 @@ def load_chatbot_data():
     if chatbot_data_loaded:
         return
 
-    chatbot_embedding_model = SentenceTransformer(
-        'sentence-transformers/all-MiniLM-L6-v2',
-        cache_folder="/app/cache",
-        device='cpu',
-        quantize=True)            # ≤ 200 MB
+    chatbot_embedding_model = SentenceTransformer('sentence-transformers/all-MiniLM-L6-v2', cache_folder="/app/cache", device='cpu')
+    # now compress to 8-bit *after* the model is built
+    chatbot_embedding_model.quantize(  # <- in-place, returns None
+        dtype='int8',                  # default is fine; explicit for clarity
+        gpu=False                      # stay on CPU
+    )
 
     embeddings_file = "quranic_ayahs.index"
     ayah_data_file  = "ayah_data.json"
