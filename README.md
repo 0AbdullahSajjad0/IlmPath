@@ -319,43 +319,6 @@ Run / Test Application
 
 ---
 
-## 🤝 Contributing
-
-Contributions, suggestions, and improvements are welcome.
-
-### 1. Fork the repository
-
-Create your own fork of the project.
-
-### 2. Create a feature branch
-
-```bash
-git checkout -b feature/your-feature
-```
-
-### 3. Make your changes
-
-Implement and test your changes locally.
-
-### 4. Commit your changes
-
-```bash
-git add .
-git commit -m "Add your feature"
-```
-
-### 5. Push your branch
-
-```bash
-git push origin feature/your-feature
-```
-
-### 6. Open a Pull Request
-
-Create a Pull Request describing your changes.
-
----
-
 ## 🐛 Issues
 
 If you find a bug or have a suggestion, feel free to open an issue in the GitHub repository.
