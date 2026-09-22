@@ -193,48 +193,6 @@ The video below provides a visual walkthrough of the application and demonstrate
 
 ---
 
-## 📸 Screenshots
-
-Screenshots can be added here to showcase the application's interface.
-
-### Home Screen
-
-```text
-Add your home-screen screenshot here
-```
-
-### Learning Experience
-
-```text
-Add your learning-screen screenshot here
-```
-
-### Application Navigation
-
-```text
-Add additional application screenshots here
-```
-
-> **Tip:** For the best GitHub presentation, add 3–5 screenshots showing the most important parts of the application.
-
-You can store them in a dedicated folder:
-
-```text
-screenshots/
-├── home.png
-├── learning.png
-├── navigation.png
-└── ...
-```
-
-Then display them using Markdown:
-
-```markdown
-![IlmPath Home Screen](screenshots/home.png)
-```
-
----
-
 ## 🎯 Project Objectives
 
 The main objectives of IlmPath are to:
